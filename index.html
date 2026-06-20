@@ -546,7 +546,29 @@
     margin-top: 0.4rem;
     display: block;
   }
-  .stats-table-wrap { overflow-x: auto; }
+  .stats-table-wrap { overflow-x: auto; position: relative; }
+  .scroll-hint-text { display: none; }
+  @media (max-width: 768px) {
+    .scroll-hint-text {
+      display: block;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--blue-bright);
+      text-align: right;
+      margin-bottom: 0.5rem;
+    }
+    .stats-table-wrap::after {
+      content: '';
+      position: absolute;
+      top: 0; right: 0; bottom: 0;
+      width: 32px;
+      background: linear-gradient(to right, transparent, var(--navy-mid) 85%);
+      pointer-events: none;
+    }
+  }
   table {
     width: 100%;
     border-collapse: collapse;
@@ -990,6 +1012,7 @@
  </div>
 
  <!-- Game-by-game table -->
+ <p class="scroll-hint-text">Swipe to see more &rarr;</p>
  <div class="stats-table-wrap">
  <div id="stats-table-container"><p class="loading-msg">Fetching stats&hellip;</p></div>
  </div>
