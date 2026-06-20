@@ -1169,7 +1169,10 @@ async function loadSchedule(statsText) {
 function renderNextGame(rows) {
   const banner = document.getElementById('next-game-banner');
   if (!banner) return;
-  const next = rows.find(r => !(r[3] || '').trim());
+  const next = rows.find(r => {
+    const result = (r[3] || '').trim().toLowerCase();
+    return result !== 'w' && result !== 'l';
+  });
   if (!next) {
     banner.innerHTML = '<p class="next-game-text">No upcoming games scheduled</p>';
     return;
