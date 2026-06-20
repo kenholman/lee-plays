@@ -1097,9 +1097,11 @@ async function loadStats() {
       .map(r => r[0] ? r : r.slice(1))
       .filter(r => r[0] && r[0].trim() && r[0].trim().toLowerCase() !== 'date');
 
-    // Totals
+    // Totals — only count games that have actually been played (score filled in)
     let gp=0, g=0, a=0, pm=0, pim=0, ppg=0, shg=0;
     data.forEach(r => {
+      const hasScore = (r[2] || '').toString().trim() !== '' && (r[3] || '').toString().trim() !== '';
+      if (!hasScore) return;
       gp++;
       g   += parseInt(r[4])||0;
       a   += parseInt(r[5])||0;
