@@ -1092,7 +1092,10 @@ async function loadStats() {
     const res = await fetch(csvUrl(STATS_GID));
     const text = await res.text();
     const rows = parseCSV(text);
-    const data = rows.slice(1).filter(r => r[0] || r[1]).map(r => r[0] ? r : r.slice(1));
+    const data = rows.slice(1)
+      .filter(r => r[0] || r[1])
+      .map(r => r[0] ? r : r.slice(1))
+      .filter(r => r[0] && r[0].trim() && r[0].trim().toLowerCase() !== 'date');
 
     // Totals
     let gp=0, g=0, a=0, pm=0, pim=0, ppg=0, shg=0;
@@ -1151,7 +1154,10 @@ async function loadSchedule(statsText) {
     const res = await fetch(csvUrl(SCHED_GID));
     const text = await res.text();
     const rows = parseCSV(text).slice(1);
-    const data = rows.filter(r => r[0] || r[1]).map(r => r[0] ? r : r.slice(1));
+    const data = rows
+      .filter(r => r[0] || r[1])
+      .map(r => r[0] ? r : r.slice(1))
+      .filter(r => r[0] && r[0].trim() && r[0].trim().toLowerCase() !== 'date');
     renderSchedule(data);
   } catch(e) {
     renderSampleSchedule();
