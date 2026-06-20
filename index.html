@@ -231,6 +231,53 @@
     color: var(--off-white);
     margin-bottom: 1.2rem;
   }
+  .highlights-label {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--white);
+    margin-bottom: 0.8rem;
+  }
+  .highlights-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    margin-bottom: 1.4rem;
+  }
+  .highlight-item {
+    padding: 0.7rem 1rem;
+    background: rgba(255,255,255,0.02);
+    border-left: 3px solid var(--blue-dim);
+    transition: border-color 0.2s, background 0.2s;
+  }
+  .highlight-item:hover {
+    background: rgba(61,174,224,0.05);
+    border-left-color: var(--blue);
+  }
+  .highlight-item.current {
+    border-left-color: var(--cream);
+    background: rgba(212,201,168,0.05);
+  }
+  .highlight-item.current:hover {
+    border-left-color: var(--cream-bright);
+    background: rgba(212,201,168,0.08);
+  }
+  .highlight-level {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: var(--blue-bright);
+    margin-right: 0.5rem;
+  }
+  .highlight-item.current .highlight-level {
+    color: var(--cream-bright);
+  }
+  .highlight-detail {
+    color: var(--off-white);
+    font-size: 0.95rem;
+  }
   .about-badges {
     display: flex;
     gap: 0.8rem;
@@ -765,18 +812,16 @@
  <h2 class="section-title">About<br>Lee</h2>
  <div class="gold-rule"></div>
  <p>Lee is a 2012 birth year and an upcoming 8th-grade forward.&nbsp; &nbsp; He was recently selected to play on the Austin Capitals 14U AA travel squad in the Austin Metro Hockey Association. He brings strength, Hockey IQ, and a relentless work ethic every time he steps on the ice.</p>
- <p>Career highlights:<br>
-          	6U - Clifton Park Eagles (Clifton Park, NY) Minimites<br>
-			8U - Clifton Park Eagles (Clifton Park, NY) Mites<br>
-			10U - Selected to play for the Troy - Albany Titans (Troy, NY) but relocated to Texas<br>
-			10U A - Selected to play for the CAHA Mallards (Austin, Texas) <br>
-			12U A - CAHA Mallards (Austin, Texas), named team captain his second year<br>
-			14U A - CAHA Mallards (Austin, Texas) <br>
-			14U AA - Selected to play for the AMHA Austin Capitals (Cedar Park, Texas)<br>
-
-
- </p>
- <p>&nbsp;</p>
+ <p class="highlights-label">Career Highlights</p>
+ <div class="highlights-list">
+ <div class="highlight-item"><span class="highlight-level">6U</span><span class="highlight-detail">Clifton Park Eagles (Clifton Park, NY) Minimites</span></div>
+ <div class="highlight-item"><span class="highlight-level">8U</span><span class="highlight-detail">Clifton Park Eagles (Clifton Park, NY) Mites</span></div>
+ <div class="highlight-item"><span class="highlight-level">10U</span><span class="highlight-detail">Selected to play for the Troy &ndash; Albany Titans (Troy, NY) but relocated to Texas</span></div>
+ <div class="highlight-item"><span class="highlight-level">10U A</span><span class="highlight-detail">Selected to play for the CAHA Mallards (Austin, Texas)</span></div>
+ <div class="highlight-item"><span class="highlight-level">12U A</span><span class="highlight-detail">CAHA Mallards (Austin, Texas), named team captain his second year</span></div>
+ <div class="highlight-item"><span class="highlight-level">14U A</span><span class="highlight-detail">CAHA Mallards (Austin, Texas)</span></div>
+ <div class="highlight-item current"><span class="highlight-level">14U AA</span><span class="highlight-detail">Selected to play for the AMHA Austin Capitals (Cedar Park, Texas)</span></div>
+ </div>
 <div class="about-badges">
  <span class="badge">Forward</span>
  <span class="badge">14U AA</span>
