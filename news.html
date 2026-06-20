@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>News | Lee Holman #88 | Austin Capitals 14U AA</title>
+<meta name="description" content="All news, updates, and game recaps for Lee Holman #88 of the Austin Capitals 14U AA hockey team.">
+<meta property="og:title" content="News | Lee Holman #88 | Austin Capitals 14U AA">
+<meta property="og:description" content="All news, updates, and game recaps for Lee Holman #88, Austin Capitals 14U AA.">
+<meta property="og:image" content="https://leeplayshockey.com/lee-hero.jpg">
+<meta property="og:url" content="https://leeplayshockey.com/news.html">
+<meta property="og:type" content="website">
+<link rel="icon" href="/favicon.png" type="image/png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:ital,wght@0,400;0,600;0,700;1,400&family=Barlow+Condensed:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --navy: #0a1220;
+    --navy-mid: #0f1c30;
+    --navy-light: #162540;
+    --blue: #3daee0;
+    --blue-bright: #60c8f5;
+    --blue-dim: #1d6e96;
+    --cream: #d4c9a8;
+    --cream-bright: #ede3c8;
+    --cream-dim: #8a7f60;
+    --white: #f5f3ef;
+    --off-white: #ccc7ba;
+    --text-muted: #6a88a8;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Barlow', sans-serif;
+    background: var(--navy);
+    color: var(--white);
+    overflow-x: hidden;
+  }
+
+  /* ── NAV ── */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 2.5rem;
+    background: rgba(10,22,40,0.85);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(61,174,224,0.2);
+  }
+  nav .logo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.4rem;
+    letter-spacing: 0.12em;
+    color: var(--blue-bright);
+    text-decoration: none;
+  }
+  nav ul { list-style: none; display: flex; gap: 2rem; }
+  nav ul a {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--off-white);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  nav ul a:hover, nav ul a.active { color: var(--blue-bright); }
+
+  /* ── SECTION BASE ── */
+  section { padding: 6rem 2rem; }
+  .section-label {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.35em;
+    text-transform: uppercase;
+    color: var(--blue-bright);
+    margin-bottom: 0.6rem;
+  }
+  .section-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(2.8rem, 6vw, 5rem);
+    letter-spacing: 0.06em;
+    line-height: 1;
+    color: var(--white);
+    margin-bottom: 2rem;
+  }
+  .container { max-width: 800px; margin: 0 auto; }
+  .gold-rule {
+    width: 60px;
+    height: 3px;
+    background: var(--cream);
+    margin-bottom: 3rem;
+  }
+
+  #news-archive { background: var(--navy); padding-top: 9rem; }
+  .loading-msg {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    letter-spacing: 0.1em;
+    padding: 2rem 0;
+  }
+
+  .news-full-list { display: flex; flex-direction: column; }
+  .news-full-item {
+    padding: 2.5rem 0;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+  }
+  .news-full-item:first-child { padding-top: 0; }
+  .news-full-item:last-child { border-bottom: none; }
+  .news-full-date {
+    display: block;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--blue);
+    margin-bottom: 0.6rem;
+  }
+  .news-full-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(1.8rem, 4vw, 2.4rem);
+    letter-spacing: 0.03em;
+    color: var(--white);
+    line-height: 1.1;
+    margin-bottom: 1.2rem;
+  }
+  .news-full-body img {
+    width: 100%;
+    max-width: 600px;
+    border-radius: 2px;
+    margin-bottom: 1.4rem;
+    display: block;
+  }
+  .news-full-body p {
+    font-size: 1.02rem;
+    line-height: 1.75;
+    color: var(--off-white);
+    margin-bottom: 1rem;
+  }
+
+  .back-home-wrap { text-align: center; margin-top: 3rem; }
+  .view-all-news {
+    display: inline-block;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--cream-bright);
+    border: 1px solid var(--cream-dim);
+    padding: 0.7rem 1.8rem;
+    border-radius: 2px;
+    text-decoration: none;
+    transition: background 0.2s, border-color 0.2s;
+  }
+  .view-all-news:hover {
+    background: rgba(212,201,168,0.08);
+    border-color: var(--cream-bright);
+  }
+
+  /* ── FOOTER ── */
+  footer {
+    background: #060e1a;
+    text-align: center;
+    padding: 2.5rem 2rem;
+    border-top: 1px solid rgba(61,174,224,0.15);
+  }
+  footer p {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.75rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+  footer strong { color: var(--blue); }
+
+  @media (max-width: 768px) {
+    nav ul { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+ <a href="index.html#hero" class="logo">Lee Holman #88 | Capitals 14U AA</a>
+ <ul>
+ <li><a href="news.html" class="active">News</a></li>
+ <li><a href="index.html#about">About</a></li>
+ <li><a href="index.html#stats">Stats</a></li>
+ <li><a href="index.html#schedule">Schedule</a></li>
+ <li><a href="index.html#gallery">Gallery</a></li>
+ </ul>
+</nav>
+
+<!-- NEWS ARCHIVE -->
+<section id="news-archive">
+ <div class="container">
+ <p class="section-label">Every Update</p>
+ <h2 class="section-title">News Archive</h2>
+ <div class="gold-rule"></div>
+ <div class="news-full-list" id="news-full-list">
+ <p class="loading-msg">Loading news&hellip;</p>
+ </div>
+ <div class="back-home-wrap">
+ <a href="index.html#hero" class="view-all-news">Back to Home</a>
+ </div>
+ </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+ <p>Go <strong>Capitals</strong> &mdash; Austin Metro Hockey Association &mdash; 2026&ndash;2027</p>
+</footer>
+
+<script>
+function formatNewsDate(iso) {
+  if (!iso) return '';
+  const parts = iso.split('-').map(Number);
+  if (!parts[0]) return iso;
+  const dt = new Date(parts[0], parts[1]-1, parts[2]);
+  return dt.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+}
+
+async function loadFullNews() {
+  const list = document.getElementById('news-full-list');
+  try {
+    const res = await fetch('posts.html');
+    const text = await res.text();
+    const doc = new DOMParser().parseFromString(text, 'text/html');
+    const articles = Array.from(doc.querySelectorAll('article.post'));
+    if (!articles.length) {
+      list.innerHTML = '<p class="loading-msg">No news posted yet. Check back soon.</p>';
+      return;
+    }
+    list.innerHTML = articles.map(a => {
+      const date = a.getAttribute('data-date') || '';
+      const title = a.getAttribute('data-title') || 'Untitled';
+      return `
+        <article class="news-full-item">
+          <span class="news-full-date">${formatNewsDate(date)}</span>
+          <h3 class="news-full-title">${title}</h3>
+          <div class="news-full-body">${a.innerHTML}</div>
+        </article>`;
+    }).join('');
+  } catch(e) {
+    list.innerHTML = '<p class="loading-msg">Could not load news.</p>';
+  }
+}
+
+loadFullNews();
+</script>
+</body>
+</html>

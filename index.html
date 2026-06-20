@@ -10,18 +10,18 @@
   gtag('js', new Date());
 
   gtag('config', 'G-NT9Z12L0L4');
-</script>	
-<link rel="icon" href="/favicon.png" type="image/png">	
+</script> 
+<link rel="icon" href="/favicon.png" type="image/png"> 
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Lee Holman #88 | Austin Capitals 14U AA</title>
-<meta name="description" content="Player profile, highlights, stats, and updates for Lee Holman #88 of the Austin Capitals 14U AA hockey team.">	
+<meta name="description" content="Player profile, highlights, stats, and updates for Lee Holman #88 of the Austin Capitals 14U AA hockey team."> 
 <meta property="og:title" content="Lee Holman #88 | Austin Capitals 14U AA">
 <meta property="og:description" content="Player profile and highlights for Lee Holman #88, Austin Capitals 14U AA.">
 <meta property="og:image" content="https://leeplayshockey.com/lee-hero.jpg">
 <meta property="og:url" content="https://leeplayshockey.com/">
 <meta property="og:type" content="website">
-<meta property="og:image:secure_url" content="https://leeplayshockey.com/lee-hero.jpg">	
+<meta property="og:image:secure_url" content="https://leeplayshockey.com/lee-hero.jpg"> 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:ital,wght@0,400;0,600;0,700;1,400&family=Barlow+Condensed:wght@400;700;900&display=swap" rel="stylesheet">
@@ -247,6 +247,76 @@
     border: 1px solid var(--cream-dim);
     color: var(--cream-bright);
     border-radius: 2px;
+  }
+
+  /* ── NEWS ── */
+  #news { background: var(--navy-mid); }
+  .news-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2.5rem;
+  }
+  .news-card {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(61,174,224,0.15);
+    border-radius: 2px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    transition: border-color 0.2s, background 0.2s;
+  }
+  .news-card:hover {
+    border-color: rgba(61,174,224,0.4);
+    background: rgba(61,174,224,0.05);
+  }
+  .news-card img {
+    width: 100%;
+    aspect-ratio: 16/9;
+    object-fit: cover;
+    display: block;
+  }
+  .news-card-body { padding: 1.2rem 1.4rem 1.4rem; }
+  .news-date {
+    display: block;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--blue);
+    margin-bottom: 0.5rem;
+  }
+  .news-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.5rem;
+    letter-spacing: 0.03em;
+    color: var(--white);
+    line-height: 1.15;
+    margin-bottom: 0.6rem;
+  }
+  .news-excerpt {
+    font-size: 0.92rem;
+    line-height: 1.6;
+    color: var(--off-white);
+  }
+  .view-all-news {
+    display: inline-block;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--cream-bright);
+    border: 1px solid var(--cream-dim);
+    padding: 0.7rem 1.8rem;
+    border-radius: 2px;
+    text-decoration: none;
+    transition: background 0.2s, border-color 0.2s;
+  }
+  .view-all-news:hover {
+    background: rgba(212,201,168,0.08);
+    border-color: var(--cream-bright);
   }
 
   /* ── STATS ── */
@@ -560,39 +630,55 @@
 
 <!-- NAV -->
 <nav>
-  <a href="#hero" class="logo">Lee Holman #88 | Capitals 14U AA</a>
-  <ul>
-    <li><a href="#about">About</a></li>
-    <li><a href="#stats">Stats</a></li>
-    <li><a href="#schedule">Schedule</a></li>
-    <li><a href="#gallery">Gallery</a></li>
-  </ul>
+ <a href="#hero" class="logo">Lee Holman #88 | Capitals 14U AA</a>
+ <ul>
+ <li><a href="#news">News</a></li>
+ <li><a href="#about">About</a></li>
+ <li><a href="#stats">Stats</a></li>
+ <li><a href="#schedule">Schedule</a></li>
+ <li><a href="#gallery">Gallery</a></li>
+ </ul>
 </nav>
 
 <!-- HERO -->
 <section id="hero">
-  <div class="bg"></div>
-  <div class="content">
-    <p class="eyebrow">Austin Capitals &mdash; 14U &mdash; Forward</p>
-    <h1>LEE<br><span>PLAYS</span></h1>
-    <p class="subtitle">Austin Metro Hockey Association &mdash; 2026&ndash;2027 Season</p>
-  </div>
-  <div class="scroll-hint">Scroll</div>
+ <div class="bg"></div>
+ <div class="content">
+ <p class="eyebrow">Austin Capitals &mdash; 14U &mdash; Forward</p>
+ <h1>LEE<br><span>PLAYS</span></h1>
+ <p class="subtitle">Austin Metro Hockey Association &mdash; 2026&ndash;2027 Season</p>
+ </div>
+ <div class="scroll-hint">Scroll</div>
+</section>
+
+<!-- NEWS -->
+<section id="news">
+ <div class="container">
+ <p class="section-label">Latest</p>
+ <h2 class="section-title">News</h2>
+ <div class="gold-rule"></div>
+ <div class="news-grid" id="news-grid">
+ <p class="loading-msg">Loading news&hellip;</p>
+ </div>
+ <div style="text-align:center;">
+ <a href="news.html" class="view-all-news">View All News</a>
+ </div>
+ </div>
 </section>
 
 <!-- ABOUT -->
 <section id="about">
-  <div class="container">
-    <div class="about-grid">
-      <div class="about-photo-wrap">
-        <div class="about-photo"></div>
-      </div>
-      <div class="about-text">
-        <p class="section-label">The Player</p>
-        <h2 class="section-title">About<br>Lee</h2>
-        <div class="gold-rule"></div>
-        <p>Lee is a 2012 birth year and an upcoming 8th-grade forward.&nbsp; &nbsp; He was recently selected to play on the Austin Capitals 14U AA travel squad in the Austin Metro Hockey Association. He brings strength, Hockey IQ, and a relentless work ethic every time he steps on the ice.</p>
-        <p>Career highlights:<br>
+ <div class="container">
+ <div class="about-grid">
+ <div class="about-photo-wrap">
+ <div class="about-photo"></div>
+ </div>
+ <div class="about-text">
+ <p class="section-label">The Player</p>
+ <h2 class="section-title">About<br>Lee</h2>
+ <div class="gold-rule"></div>
+ <p>Lee is a 2012 birth year and an upcoming 8th-grade forward.&nbsp; &nbsp; He was recently selected to play on the Austin Capitals 14U AA travel squad in the Austin Metro Hockey Association. He brings strength, Hockey IQ, and a relentless work ethic every time he steps on the ice.</p>
+ <p>Career highlights:<br>
           	6U - Clifton Park Eagles (Clifton Park, NY) Minimites<br>
 			8U - Clifton Park Eagles (Clifton Park, NY) Mites<br>
 			10U - Selected to play for the Troy - Albany Titans (Troy, NY) but relocated to Texas<br>
@@ -602,88 +688,88 @@
 			14U AA - Selected to play for the AMHA Austin Capitals (Cedar Park, Texas)<br>
 
 
-        </p>
-        <p>&nbsp;</p>
+ </p>
+ <p>&nbsp;</p>
 <div class="about-badges">
-          <span class="badge">Forward</span>
-          <span class="badge">14U AA</span>
-          <span class="badge">Austin Capitals</span>
-          <span class="badge">AMHA</span>
-        </div>
-      </div>
-    </div>
-  </div>
+ <span class="badge">Forward</span>
+ <span class="badge">14U AA</span>
+ <span class="badge">Austin Capitals</span>
+ <span class="badge">AMHA</span>
+ </div>
+ </div>
+ </div>
+ </div>
 </section>
 
 <!-- STATS -->
 <section id="stats">
-  <div class="container">
-    <p class="section-label">2026&ndash;2027 Season</p>
-    <h2 class="section-title">Stats</h2>
-    <div class="gold-rule"></div>
-    <p class="stats-meta">
+ <div class="container">
+ <p class="section-label">2026&ndash;2027 Season</p>
+ <h2 class="section-title">Stats</h2>
+ <div class="gold-rule"></div>
+ <p class="stats-meta">
       Live data via Google Sheets &mdash; updates automatically
-      <span id="stats-status">Loading&hellip;</span>
-    </p>
+ <span id="stats-status">Loading&hellip;</span>
+ </p>
 
-    <!-- Summary cards -->
-    <div class="stat-cards" id="stat-cards">
-      <div class="stat-card"><span class="val" id="c-gp">—</span><span class="lbl">GP</span></div>
-      <div class="stat-card"><span class="val" id="c-g">—</span><span class="lbl">Goals</span></div>
-      <div class="stat-card"><span class="val" id="c-a">—</span><span class="lbl">Assists</span></div>
-      <div class="stat-card"><span class="val" id="c-pts">—</span><span class="lbl">Points</span></div>
-      <div class="stat-card"><span class="val" id="c-pm">—</span><span class="lbl">+/&minus;</span></div>
-      <div class="stat-card"><span class="val" id="c-pim">—</span><span class="lbl">PIM</span></div>
-      <div class="stat-card"><span class="val" id="c-ppg">—</span><span class="lbl">PP Goals</span></div>
-      <div class="stat-card"><span class="val" id="c-shg">—</span><span class="lbl">SH Goals</span></div>
-    </div>
+ <!-- Summary cards -->
+ <div class="stat-cards" id="stat-cards">
+ <div class="stat-card"><span class="val" id="c-gp">—</span><span class="lbl">GP</span></div>
+ <div class="stat-card"><span class="val" id="c-g">—</span><span class="lbl">Goals</span></div>
+ <div class="stat-card"><span class="val" id="c-a">—</span><span class="lbl">Assists</span></div>
+ <div class="stat-card"><span class="val" id="c-pts">—</span><span class="lbl">Points</span></div>
+ <div class="stat-card"><span class="val" id="c-pm">—</span><span class="lbl">+/&minus;</span></div>
+ <div class="stat-card"><span class="val" id="c-pim">—</span><span class="lbl">PIM</span></div>
+ <div class="stat-card"><span class="val" id="c-ppg">—</span><span class="lbl">PP Goals</span></div>
+ <div class="stat-card"><span class="val" id="c-shg">—</span><span class="lbl">SH Goals</span></div>
+ </div>
 
-    <!-- Game-by-game table -->
-    <div class="stats-table-wrap">
-      <div id="stats-table-container"><p class="loading-msg">Fetching stats&hellip;</p></div>
-    </div>
-  </div>
+ <!-- Game-by-game table -->
+ <div class="stats-table-wrap">
+ <div id="stats-table-container"><p class="loading-msg">Fetching stats&hellip;</p></div>
+ </div>
+ </div>
 </section>
 
 <!-- SCHEDULE -->
 <section id="schedule">
-  <div class="container">
-    <p class="section-label">2026&ndash;2027</p>
-    <h2 class="section-title">Schedule</h2>
-    <div class="gold-rule"></div>
-    <div class="schedule-list" id="schedule-list">
-      <p class="loading-msg">Fetching schedule&hellip;</p>
-    </div>
-  </div>
+ <div class="container">
+ <p class="section-label">2026&ndash;2027</p>
+ <h2 class="section-title">Schedule</h2>
+ <div class="gold-rule"></div>
+ <div class="schedule-list" id="schedule-list">
+ <p class="loading-msg">Fetching schedule&hellip;</p>
+ </div>
+ </div>
 </section>
 
 <!-- GALLERY -->
 <section id="gallery">
-  <div class="container">
-    <p class="section-label">On the Ice</p>
-    <h2 class="section-title">Gallery</h2>
-    <div class="gold-rule"></div>
-    <div class="gallery-grid">
-      <div class="gitem"><div class="gallery-placeholder">Photo coming soon</div></div>
-      <div class="gitem"><div class="gallery-placeholder">Photo coming soon</div></div>
-      <div class="gitem"><div class="gallery-placeholder">Photo coming soon</div></div>
-      <div class="gitem"><div class="gallery-placeholder">Photo coming soon</div></div>
-      <div class="gitem"><div class="gallery-placeholder">Photo coming soon</div></div>
-    </div>
-  </div>
+ <div class="container">
+ <p class="section-label">On the Ice</p>
+ <h2 class="section-title">Gallery</h2>
+ <div class="gold-rule"></div>
+ <div class="gallery-grid">
+ <div class="gitem"><div class="gallery-placeholder">Photo coming soon</div></div>
+ <div class="gitem"><div class="gallery-placeholder">Photo coming soon</div></div>
+ <div class="gitem"><div class="gallery-placeholder">Photo coming soon</div></div>
+ <div class="gitem"><div class="gallery-placeholder">Photo coming soon</div></div>
+ <div class="gitem"><div class="gallery-placeholder">Photo coming soon</div></div>
+ </div>
+ </div>
 </section>
 
 <!-- VERSE -->
 <section id="verse">
-  <blockquote>
-    <p>"Whatever you do, work at it with all your heart, as working for the Lord, not for human masters."</p>
-    <cite>Colossians 3:23</cite>
-  </blockquote>
+ <blockquote>
+ <p>"Whatever you do, work at it with all your heart, as working for the Lord, not for human masters."</p>
+ <cite>Colossians 3:23</cite>
+ </blockquote>
 </section>
 
 <!-- FOOTER -->
 <footer>
-  <p>Go <strong>Capitals</strong> &mdash; Austin Metro Hockey Association &mdash; 2026&ndash;2027</p>
+ <p>Go <strong>Capitals</strong> &mdash; Austin Metro Hockey Association &mdash; 2026&ndash;2027</p>
 </footer>
 
 <script>
@@ -825,7 +911,49 @@ function renderSampleSchedule() {
   renderSchedule(sample);
 }
 
+// ─── NEWS ───
+function formatNewsDate(iso) {
+  if (!iso) return '';
+  const parts = iso.split('-').map(Number);
+  if (!parts[0]) return iso;
+  const dt = new Date(parts[0], parts[1]-1, parts[2]);
+  return dt.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+}
+
+async function loadNews() {
+  const grid = document.getElementById('news-grid');
+  try {
+    const res = await fetch('posts.html');
+    const text = await res.text();
+    const doc = new DOMParser().parseFromString(text, 'text/html');
+    const articles = Array.from(doc.querySelectorAll('article.post')).slice(0, 5);
+    if (!articles.length) {
+      grid.innerHTML = '<p class="loading-msg">No news posted yet. Check back soon.</p>';
+      return;
+    }
+    grid.innerHTML = articles.map(a => {
+      const date = a.getAttribute('data-date') || '';
+      const title = a.getAttribute('data-title') || 'Untitled';
+      const img = a.querySelector('img');
+      const firstP = a.querySelector('p');
+      const excerpt = firstP ? firstP.textContent.trim() : '';
+      return `
+        <div class="news-card">
+          ${img ? `<img src="${img.getAttribute('src')}" alt="${title}">` : ''}
+          <div class="news-card-body">
+            <span class="news-date">${formatNewsDate(date)}</span>
+            <h3 class="news-title">${title}</h3>
+            <p class="news-excerpt">${excerpt}</p>
+          </div>
+        </div>`;
+    }).join('');
+  } catch(e) {
+    grid.innerHTML = '<p class="loading-msg">Could not load news.</p>';
+  }
+}
+
 loadStats();
+loadNews();
 </script>
 </body>
 </html>
