@@ -12,7 +12,17 @@
   5. The <img> line is OPTIONAL. If you don't have a photo, delete that
      whole line. If you do have one, upload the photo to the repo first
      (same as lee-hero.jpg), then reference its filename here.
-  6. Save and commit.
+  6. To embed a VIDEO instead of (or in addition to) a photo, paste this
+     inside your <article> block, swapping in your YouTube video ID
+     (the part of the URL after watch?v=):
+
+       <div class="video-wrap">
+         <iframe src="https://www.youtube.com/embed/VIDEO_ID" title="video" allowfullscreen></iframe>
+       </div>
+
+     Note: video only displays on the full news.html article page, not
+     in the homepage teaser card.
+  7. Save and commit.
 
   The homepage always shows the 5 newest posts automatically. Older posts
   are not deleted — they simply move to news.html with zero extra work.
@@ -20,7 +30,9 @@
   IMPORTANT: keep the newest post FIRST in this file, oldest LAST.
 -->
 
-<article class="post" data-date="2026-09-20" data-title="Welcome to Lee's News Page">
-  <img src="lee-hero.jpg" alt="">
-  <p>This is where season updates, game recaps, and milestones will be posted as the year goes on. Check back often for the latest from the rink.</p>
+<article class="post" data-date="2026-09-20" data-title="We are in Nashville">
+  <div class="video-wrap">
+    <iframe src="https://www.youtube.com/embed/N1NtFaVEAMM" title="video" allowfullscreen></iframe>
+  </div>
+  <p>Lee is playing for the San Diego Sea Dragons this weekend at the TCS HOCKEY Music City Cup.</p>
 </article>
