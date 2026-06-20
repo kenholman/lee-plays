@@ -642,6 +642,50 @@
     font-style: normal;
   }
 
+  /* ── LIGHTBOX ── */
+  .lightbox {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    background: rgba(5,10,18,0.95);
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    padding: 2rem;
+    cursor: zoom-out;
+  }
+  .lightbox.active { display: flex; }
+  .lightbox img {
+    max-width: 90vw;
+    max-height: 80vh;
+    object-fit: contain;
+    border-radius: 2px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+    cursor: default;
+  }
+  .lightbox-caption {
+    margin-top: 1.2rem;
+    max-width: 700px;
+    text-align: center;
+    color: var(--off-white);
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.95rem;
+    letter-spacing: 0.03em;
+  }
+  .lightbox-close {
+    position: absolute;
+    top: 1.5rem;
+    right: 2rem;
+    font-size: 2.2rem;
+    color: var(--white);
+    cursor: pointer;
+    line-height: 1;
+    transition: color 0.2s;
+  }
+  .lightbox-close:hover { color: var(--blue-bright); }
+  .gallery-grid .gitem img { cursor: zoom-in; }
+
   /* ── FOOTER ── */
   footer {
     background: #060e1a;
@@ -814,6 +858,13 @@
 <footer>
  <p>Go <strong>Capitals</strong> &mdash; Austin Metro Hockey Association &mdash; 2026&ndash;2027</p>
 </footer>
+
+<!-- LIGHTBOX -->
+<div id="lightbox" class="lightbox" onclick="closeLightbox(event)">
+ <span class="lightbox-close" onclick="closeLightbox(event)">&times;</span>
+ <img id="lightbox-img" src="" alt="">
+ <div id="lightbox-caption" class="lightbox-caption"></div>
+</div>
 
 <script>
 // ─────────────────────────────────────────────────────────────────────
@@ -1012,6 +1063,34 @@ async function loadNews() {
     grid.innerHTML = '<p class="loading-msg">Could not load news.</p>';
   }
 }
+
+// ─── LIGHTBOX ───
+function openLightbox(src, caption) {
+  document.getElementById('lightbox-img').src = src;
+  document.getElementById('lightbox-caption').textContent = caption || '';
+  document.getElementById('lightbox').classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeLightbox(e) {
+  if (e && e.target && e.target.id === 'lightbox-img') return;
+  document.getElementById('lightbox').classList.remove('active');
+  document.body.style.overflow = '';
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeLightbox();
+});
+
+document.querySelectorAll('.gallery-grid .gitem img').forEach(img => {
+  img.addEventListener('click', () => {
+    const next = img.nextElementSibling;
+    const caption = (next && next.classList.contains('gitem-caption'))
+      ? next.textContent
+      : (img.getAttribute('alt') || '');
+    openLightbox(img.getAttribute('src'), caption);
+  });
+});
 
 loadStats();
 loadNews();
