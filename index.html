@@ -276,6 +276,22 @@
     object-fit: cover;
     display: block;
   }
+  .news-card-media { position: relative; }
+  .play-badge {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 48px; height: 48px;
+    border-radius: 50%;
+    background: rgba(10,18,30,0.75);
+    border: 1px solid rgba(255,255,255,0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--white);
+    font-size: 1rem;
+    pointer-events: none;
+  }
   .news-card-body { padding: 1.2rem 1.4rem 1.4rem; }
   .news-date {
     display: block;
@@ -935,11 +951,24 @@ async function loadNews() {
       const date = a.getAttribute('data-date') || '';
       const title = a.getAttribute('data-title') || 'Untitled';
       const img = a.querySelector('img');
+      let imgSrc = img ? img.getAttribute('src') : null;
+      let isVideo = false;
+      if (!imgSrc) {
+        const yt = a.querySelector('iframe[src*="youtube.com/embed/"]');
+        if (yt) {
+          const m = yt.getAttribute('src').match(/embed\/([a-zA-Z0-9_-]+)/);
+          if (m) { imgSrc = `https://img.youtube.com/vi/${m[1]}/hqdefault.jpg`; isVideo = true; }
+        }
+      }
       const firstP = a.querySelector('p');
       const excerpt = firstP ? firstP.textContent.trim() : '';
       return `
         <div class="news-card">
-          ${img ? `<img src="${img.getAttribute('src')}" alt="${title}">` : ''}
+          ${imgSrc ? `
+          <div class="news-card-media">
+            <img src="${imgSrc}" alt="${title}">
+            ${isVideo ? '<span class="play-badge">&#9658;</span>' : ''}
+          </div>` : ''}
           <div class="news-card-body">
             <span class="news-date">${formatNewsDate(date)}</span>
             <h3 class="news-title">${title}</h3>
