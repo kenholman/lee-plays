@@ -114,6 +114,7 @@
   .news-full-item {
     padding: 2.5rem 0;
     border-bottom: 1px solid rgba(255,255,255,0.08);
+    scroll-margin-top: 100px;
   }
   .news-full-item:first-child { padding-top: 0; }
   .news-full-item:last-child { border-bottom: none; }
@@ -251,6 +252,10 @@ function formatNewsDate(iso) {
   return dt.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
 }
 
+function newsSlug(date, title) {
+  return (date + '-' + title).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+}
+
 async function loadFullNews() {
   const list = document.getElementById('news-full-list');
   try {
@@ -265,8 +270,9 @@ async function loadFullNews() {
     list.innerHTML = articles.map(a => {
       const date = a.getAttribute('data-date') || '';
       const title = a.getAttribute('data-title') || 'Untitled';
+      const slug = newsSlug(date, title);
       return `
-        <article class="news-full-item">
+        <article class="news-full-item" id="${slug}">
           <span class="news-full-date">${formatNewsDate(date)}</span>
           <h3 class="news-full-title">${title}</h3>
           <div class="news-full-body">${a.innerHTML}</div>

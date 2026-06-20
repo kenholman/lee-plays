@@ -264,6 +264,8 @@
     overflow: hidden;
     display: flex;
     flex-direction: column;
+    text-decoration: none;
+    color: inherit;
     transition: border-color 0.2s, background 0.2s;
   }
   .news-card:hover {
@@ -281,16 +283,26 @@
     position: absolute;
     top: 50%; left: 50%;
     transform: translate(-50%, -50%);
-    width: 48px; height: 48px;
-    border-radius: 50%;
-    background: rgba(10,18,30,0.75);
-    border: 1px solid rgba(255,255,255,0.3);
+    width: 64px; height: 45px;
+    border-radius: 12px;
+    background: rgba(220,20,20,0.92);
     display: flex;
     align-items: center;
     justify-content: center;
-    color: var(--white);
-    font-size: 1rem;
     pointer-events: none;
+    transition: transform 0.2s, background 0.2s;
+  }
+  .play-badge::after {
+    content: '';
+    width: 0; height: 0;
+    border-style: solid;
+    border-width: 9px 0 9px 16px;
+    border-color: transparent transparent transparent #fff;
+    margin-left: 4px;
+  }
+  .news-card:hover .play-badge {
+    background: rgba(220,20,20,1);
+    transform: translate(-50%, -50%) scale(1.06);
   }
   .news-card-body { padding: 1.2rem 1.4rem 1.4rem; }
   .news-date {
@@ -936,6 +948,10 @@ function formatNewsDate(iso) {
   return dt.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 }
 
+function newsSlug(date, title) {
+  return (date + '-' + title).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+}
+
 async function loadNews() {
   const grid = document.getElementById('news-grid');
   try {
@@ -950,6 +966,7 @@ async function loadNews() {
     grid.innerHTML = articles.map(a => {
       const date = a.getAttribute('data-date') || '';
       const title = a.getAttribute('data-title') || 'Untitled';
+      const slug = newsSlug(date, title);
       const img = a.querySelector('img');
       let imgSrc = img ? img.getAttribute('src') : null;
       let isVideo = false;
@@ -963,18 +980,18 @@ async function loadNews() {
       const firstP = a.querySelector('p');
       const excerpt = firstP ? firstP.textContent.trim() : '';
       return `
-        <div class="news-card">
+        <a href="news.html#${slug}" class="news-card">
           ${imgSrc ? `
           <div class="news-card-media">
             <img src="${imgSrc}" alt="${title}">
-            ${isVideo ? '<span class="play-badge">&#9658;</span>' : ''}
+            ${isVideo ? '<span class="play-badge"></span>' : ''}
           </div>` : ''}
           <div class="news-card-body">
             <span class="news-date">${formatNewsDate(date)}</span>
             <h3 class="news-title">${title}</h3>
             <p class="news-excerpt">${excerpt}</p>
           </div>
-        </div>`;
+        </a>`;
     }).join('');
   } catch(e) {
     grid.innerHTML = '<p class="loading-msg">Could not load news.</p>';
