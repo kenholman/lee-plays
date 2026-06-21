@@ -278,6 +278,14 @@ async function loadFullNews() {
           <div class="news-full-body">${a.innerHTML}</div>
         </article>`;
     }).join('');
+
+    // The browser tries to jump to the URL's #anchor before this content
+    // exists, so that native jump silently fails. Do it manually now that
+    // the matching element is actually in the page.
+    if (window.location.hash) {
+      const target = document.getElementById(window.location.hash.slice(1));
+      if (target) target.scrollIntoView({ behavior: 'instant', block: 'start' });
+    }
   } catch(e) {
     list.innerHTML = '<p class="loading-msg">Could not load news.</p>';
   }
