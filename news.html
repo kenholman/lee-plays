@@ -286,7 +286,13 @@ async function loadFullNews() {
     if (window.location.hash) {
       requestAnimationFrame(() => {
         const target = document.getElementById(decodeURIComponent(window.location.hash.slice(1)));
-        if (target) target.scrollIntoView({ block: 'start' });
+        if (target) {
+          target.scrollIntoView({ block: 'start' });
+          const titleEl = target.querySelector('.news-full-title');
+          if (titleEl) {
+            document.title = `${titleEl.textContent} | Lee Holman #88 | Austin Capitals 14U AA`;
+          }
+        }
       });
     }
   } catch(e) {
