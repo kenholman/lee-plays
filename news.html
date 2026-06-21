@@ -281,10 +281,13 @@ async function loadFullNews() {
 
     // The browser tries to jump to the URL's #anchor before this content
     // exists, so that native jump silently fails. Do it manually now that
-    // the matching element is actually in the page.
+    // the matching element is actually in the page. requestAnimationFrame
+    // gives the browser a beat to finish laying out the new content first.
     if (window.location.hash) {
-      const target = document.getElementById(window.location.hash.slice(1));
-      if (target) target.scrollIntoView({ behavior: 'instant', block: 'start' });
+      requestAnimationFrame(() => {
+        const target = document.getElementById(decodeURIComponent(window.location.hash.slice(1)));
+        if (target) target.scrollIntoView({ block: 'start' });
+      });
     }
   } catch(e) {
     list.innerHTML = '<p class="loading-msg">Could not load news.</p>';
