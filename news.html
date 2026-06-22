@@ -168,6 +168,68 @@
     display: block;
   }
 
+  /* ── SHARE BUTTONS ── */
+  .share-row {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    flex-wrap: wrap;
+    margin-top: 1.4rem;
+    padding-top: 1.2rem;
+    border-top: 1px solid rgba(255,255,255,0.08);
+  }
+  .share-label {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-right: 0.2rem;
+  }
+  .share-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 0.4rem 0.9rem;
+    border-radius: 2px;
+    border: 1px solid;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background 0.2s, color 0.2s;
+    background: transparent;
+  }
+  .share-btn.copy {
+    color: var(--blue-bright);
+    border-color: rgba(61,174,224,0.4);
+  }
+  .share-btn.copy:hover {
+    background: rgba(61,174,224,0.1);
+  }
+  .share-btn.copy.copied {
+    color: #4caf76;
+    border-color: rgba(76,175,118,0.4);
+  }
+  .share-btn.facebook {
+    color: #8ab4f8;
+    border-color: rgba(138,180,248,0.35);
+  }
+  .share-btn.facebook:hover {
+    background: rgba(138,180,248,0.08);
+  }
+  .share-btn.twitter {
+    color: var(--off-white);
+    border-color: rgba(255,255,255,0.2);
+  }
+  .share-btn.twitter:hover {
+    background: rgba(255,255,255,0.05);
+  }
+
   .back-home-wrap { text-align: center; margin-top: 3rem; }
   .view-all-news {
     display: inline-block;
@@ -271,11 +333,20 @@ async function loadFullNews() {
       const date = a.getAttribute('data-date') || '';
       const title = a.getAttribute('data-title') || 'Untitled';
       const slug = newsSlug(date, title);
+      const postUrl = `https://leeplayshockey.com/news.html#${slug}`;
+      const fbUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(postUrl)}`;
+      const xUrl  = `https://twitter.com/intent/tweet?url=${encodeURIComponent(postUrl)}&text=${encodeURIComponent(title)}`;
       return `
         <article class="news-full-item" id="${slug}">
           <span class="news-full-date">${formatNewsDate(date)}</span>
           <h3 class="news-full-title">${title}</h3>
           <div class="news-full-body">${a.innerHTML}</div>
+          <div class="share-row">
+            <span class="share-label">Share</span>
+            <button class="share-btn copy" onclick="copyPostLink(this, '${postUrl}')">&#128279; Copy Link</button>
+            <a class="share-btn facebook" href="${fbUrl}" target="_blank" rel="noopener">Facebook</a>
+            <a class="share-btn twitter" href="${xUrl}" target="_blank" rel="noopener">X / Twitter</a>
+          </div>
         </article>`;
     }).join('');
 
@@ -298,6 +369,31 @@ async function loadFullNews() {
   } catch(e) {
     list.innerHTML = '<p class="loading-msg">Could not load news.</p>';
   }
+}
+
+function copyPostLink(btn, url) {
+  navigator.clipboard.writeText(url).then(() => {
+    btn.textContent = '✓ Copied!';
+    btn.classList.add('copied');
+    setTimeout(() => {
+      btn.innerHTML = '&#128279; Copy Link';
+      btn.classList.remove('copied');
+    }, 2000);
+  }).catch(() => {
+    // Fallback for older browsers
+    const el = document.createElement('textarea');
+    el.value = url;
+    document.body.appendChild(el);
+    el.select();
+    document.execCommand('copy');
+    document.body.removeChild(el);
+    btn.textContent = '✓ Copied!';
+    btn.classList.add('copied');
+    setTimeout(() => {
+      btn.innerHTML = '&#128279; Copy Link';
+      btn.classList.remove('copied');
+    }, 2000);
+  });
 }
 
 loadFullNews();
