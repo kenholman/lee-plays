@@ -943,6 +943,16 @@
     .game-row { grid-template-columns: 60px 1fr auto; }
     .result-tag { display: none; }
   }
+
+  /* ── iOS SAFARI FIX ── */
+  /* iOS Safari ignores background-attachment: fixed and renders it broken.
+     hover: none targets touch devices reliably across all mobile browsers. */
+  @media (hover: none) {
+    #verse {
+      background-attachment: scroll;
+      background-position: center center;
+    }
+  }
 </style>
 </head>
 <body>
