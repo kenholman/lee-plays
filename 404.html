@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Page Not Found | Lee Holman #88 | Austin Capitals 14U AA</title>
+<link rel="icon" href="/favicon.png" type="image/png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:ital,wght@0,400;0,600;0,700;1,400&family=Barlow+Condensed:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --navy: #0a1220;
+    --navy-mid: #0f1c30;
+    --navy-light: #162540;
+    --blue: #3daee0;
+    --blue-bright: #60c8f5;
+    --blue-dim: #1d6e96;
+    --cream: #d4c9a8;
+    --cream-bright: #ede3c8;
+    --cream-dim: #8a7f60;
+    --white: #f5f3ef;
+    --off-white: #ccc7ba;
+    --text-muted: #6a88a8;
+  }
+
+  html, body {
+    height: 100%;
+  }
+
+  body {
+    font-family: 'Barlow', sans-serif;
+    background: var(--navy);
+    color: var(--white);
+    overflow-x: hidden;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+  }
+
+  /* ── NAV ── */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 2.5rem;
+    background: rgba(10,22,40,0.85);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(61,174,224,0.2);
+  }
+  nav .logo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.4rem;
+    letter-spacing: 0.12em;
+    color: var(--blue-bright);
+    text-decoration: none;
+  }
+  nav ul { list-style: none; display: flex; gap: 2rem; }
+  nav ul a {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--off-white);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  nav ul a:hover { color: var(--blue-bright); }
+
+  /* ── 404 CONTENT ── */
+  .fourohfour {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 8rem 2rem 4rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .fourohfour::before {
+    content: '404';
+    position: absolute;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(16rem, 40vw, 28rem);
+    color: rgba(61,174,224,0.04);
+    line-height: 1;
+    pointer-events: none;
+    user-select: none;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    white-space: nowrap;
+  }
+  .fourohfour-inner {
+    position: relative;
+    z-index: 1;
+    max-width: 560px;
+  }
+  .fourohfour-eyebrow {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.35em;
+    text-transform: uppercase;
+    color: var(--blue-bright);
+    margin-bottom: 1rem;
+  }
+  .fourohfour-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(3.5rem, 10vw, 7rem);
+    line-height: 0.95;
+    letter-spacing: 0.04em;
+    color: var(--white);
+    margin-bottom: 1.5rem;
+  }
+  .fourohfour-title span { color: var(--cream-bright); }
+  .fourohfour-rule {
+    width: 60px;
+    height: 3px;
+    background: var(--cream);
+    margin: 0 auto 1.8rem;
+  }
+  .fourohfour-text {
+    font-size: 1rem;
+    line-height: 1.7;
+    color: var(--off-white);
+    margin-bottom: 2.5rem;
+  }
+  .fourohfour-links {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  .btn-primary {
+    display: inline-block;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    padding: 0.75rem 2rem;
+    border-radius: 2px;
+    text-decoration: none;
+    background: var(--blue);
+    color: var(--navy);
+    transition: background 0.2s;
+  }
+  .btn-primary:hover { background: var(--blue-bright); }
+  .btn-secondary {
+    display: inline-block;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    padding: 0.75rem 2rem;
+    border-radius: 2px;
+    text-decoration: none;
+    border: 1px solid var(--cream-dim);
+    color: var(--cream-bright);
+    transition: background 0.2s, border-color 0.2s;
+  }
+  .btn-secondary:hover {
+    background: rgba(212,201,168,0.08);
+    border-color: var(--cream-bright);
+  }
+
+  /* ── FOOTER ── */
+  footer {
+    background: #060e1a;
+    text-align: center;
+    padding: 2rem;
+    border-top: 1px solid rgba(61,174,224,0.15);
+  }
+  footer p {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.75rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+  footer strong { color: var(--blue); }
+
+  @media (max-width: 768px) {
+    nav ul { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="/" class="logo">Lee Holman #88 | Capitals 14U AA</a>
+  <ul>
+    <li><a href="/news.html">News</a></li>
+    <li><a href="/#about">About</a></li>
+    <li><a href="/#stats">Stats</a></li>
+    <li><a href="/#schedule">Schedule</a></li>
+    <li><a href="/#gallery">Gallery</a></li>
+  </ul>
+</nav>
+
+<!-- 404 -->
+<main class="fourohfour">
+  <div class="fourohfour-inner">
+    <p class="fourohfour-eyebrow">Error 404</p>
+    <h1 class="fourohfour-title">Wrong<br><span>Rink</span></h1>
+    <div class="fourohfour-rule"></div>
+    <p class="fourohfour-text">Looks like this page skated off somewhere. It may have been moved, deleted, or the link might have a typo in it.</p>
+    <div class="fourohfour-links">
+      <a href="/" class="btn-primary">Back to Home</a>
+      <a href="/news.html" class="btn-secondary">Latest News</a>
+    </div>
+  </div>
+</main>
+
+<!-- FOOTER -->
+<footer>
+  <p>Go <strong>Capitals</strong> &mdash; Austin Metro Hockey Association &mdash; 2026&ndash;2027</p>
+  <p class="footer-credit" style="margin-top:0.6rem;font-size:0.7rem;color:#60c8f5;">Site built by Ken Holman</p>
+</footer>
+
+</body>
+</html>
