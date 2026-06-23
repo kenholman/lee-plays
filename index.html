@@ -820,6 +820,72 @@
     font-style: normal;
   }
 
+  /* ── CONTACT ── */
+  #contact { background: var(--navy-mid); }
+  .contact-form {
+    max-width: 680px;
+  }
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    margin-bottom: 1rem;
+  }
+  .form-row .form-group { margin-bottom: 0; }
+  .form-group label {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+  .form-group input,
+  .form-group textarea {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(61,174,224,0.2);
+    border-radius: 2px;
+    padding: 0.75rem 1rem;
+    color: var(--white);
+    font-family: 'Barlow', sans-serif;
+    font-size: 0.95rem;
+    outline: none;
+    transition: border-color 0.2s, background 0.2s;
+    width: 100%;
+    resize: vertical;
+  }
+  .form-group input::placeholder,
+  .form-group textarea::placeholder { color: var(--text-muted); }
+  .form-group input:focus,
+  .form-group textarea:focus {
+    border-color: var(--blue);
+    background: rgba(61,174,224,0.05);
+  }
+  .form-submit {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    padding: 0.85rem 2.5rem;
+    border-radius: 2px;
+    border: none;
+    background: var(--blue);
+    color: var(--navy);
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .form-submit:hover { background: var(--blue-bright); }
+  @media (max-width: 768px) {
+    .form-row { grid-template-columns: 1fr; }
+  }
+
   /* ── LIGHTBOX ── */
   .lightbox {
     display: none;
@@ -968,6 +1034,7 @@
  <li><a href="#stats">Stats</a></li>
  <li><a href="#schedule">Schedule</a></li>
  <li><a href="#gallery">Gallery</a></li>
+ <li><a href="#contact">Contact</a></li>
  </ul>
 </nav>
 <div class="nav-overlay" id="nav-overlay"></div>
@@ -1096,6 +1163,32 @@
  <div class="gitem"><div class="gallery-placeholder">Photo coming soon</div></div>
  <div class="gitem"><div class="gallery-placeholder">Photo coming soon</div></div>
  </div>
+ </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact">
+ <div class="container">
+ <p class="section-label">Get In Touch</p>
+ <h2 class="section-title">Contact</h2>
+ <div class="gold-rule"></div>
+ <form class="contact-form" action="https://formspree.io/f/xojovogy" method="POST">
+   <div class="form-row">
+     <div class="form-group">
+       <label for="name">Name</label>
+       <input type="text" id="name" name="name" placeholder="Your name" required>
+     </div>
+     <div class="form-group">
+       <label for="email">Email</label>
+       <input type="email" id="email" name="email" placeholder="your@email.com" required>
+     </div>
+   </div>
+   <div class="form-group">
+     <label for="message">Message</label>
+     <textarea id="message" name="message" rows="5" placeholder="Say something..." required></textarea>
+   </div>
+   <button type="submit" class="form-submit">Send Message</button>
+ </form>
  </div>
 </section>
 
