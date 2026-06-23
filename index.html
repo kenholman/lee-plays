@@ -1025,7 +1025,6 @@
  <div class="highlight-item"><span class="highlight-level">10U A</span><span class="highlight-detail">Selected to play for the CAHA Mallards (Austin, Texas)</span></div>
  <div class="highlight-item"><span class="highlight-level">12U A</span><span class="highlight-detail">CAHA Mallards (Austin, Texas), named team captain his second year</span></div>
  <div class="highlight-item"><span class="highlight-level">14U A</span><span class="highlight-detail">CAHA Mallards (Austin, Texas)</span></div>
- <div class="highlight-item"><span class="highlight-level">14U AA</span><span class="highlight-detail">Invited to play for the San Diego Dragons</span></div>  
  <div class="highlight-item current"><span class="highlight-level">14U AA</span><span class="highlight-detail">Selected to play for the AMHA Austin Capitals (Cedar Park, Texas)</span></div>
  </div>
 <div class="about-badges">
@@ -1352,7 +1351,7 @@ async function loadNews() {
           <span class="news-date">${formatNewsDate(date)}</span>
           <h3 class="news-title">${title}</h3>
           <p class="news-excerpt">${excerpt}</p>
-          ${iframe ? `<a href="news.html#${slug}" class="news-readmore">Read More &rarr;</a>` : ''}
+          <a href="news.html#${slug}" class="news-readmore">Read More &rarr;</a>
         </div>`;
 
       // Video posts: not wrapped in a link, video plays directly in place.
