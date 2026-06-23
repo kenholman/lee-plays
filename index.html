@@ -409,8 +409,6 @@
     overflow: hidden;
     display: flex;
     flex-direction: column;
-    text-decoration: none;
-    color: inherit;
     transition: border-color 0.2s, background 0.2s;
   }
   .news-card:hover {
@@ -1354,11 +1352,9 @@ async function loadNews() {
           <a href="news.html#${slug}" class="news-readmore">Read More &rarr;</a>
         </div>`;
 
-      // Video posts: not wrapped in a link, video plays directly in place.
-      // Photo/text-only posts: whole card links through to the full story.
-      return iframe
-        ? `<div class="news-card">${mediaHtml}${bodyHtml}</div>`
-        : `<a href="news.html#${slug}" class="news-card">${mediaHtml}${bodyHtml}</a>`;
+      // All cards use a div — the Read More link handles navigation.
+      // Photo cards can't use an outer <a> since it would nest links.
+      return `<div class="news-card">${mediaHtml}${bodyHtml}</div>`;
     }).join('');
   } catch(e) {
     grid.innerHTML = '<p class="loading-msg">Could not load news.</p>';
