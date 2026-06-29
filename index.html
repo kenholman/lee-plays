@@ -544,15 +544,21 @@
   }
   .stat-cards {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-    gap: 1.2rem;
+    grid-template-columns: repeat(8, 1fr);
+    gap: 0.8rem;
     margin-bottom: 3rem;
+  }
+  @media (max-width: 900px) {
+    .stat-cards { grid-template-columns: repeat(4, 1fr); }
+  }
+  @media (max-width: 480px) {
+    .stat-cards { grid-template-columns: repeat(2, 1fr); }
   }
   .stat-card {
     background: rgba(255,255,255,0.04);
     border: 1px solid rgba(61,174,224,0.15);
     border-radius: 2px;
-    padding: 1.4rem 1.2rem;
+    padding: 1.2rem 0.6rem;
     text-align: center;
     transition: border-color 0.2s, background 0.2s;
   }
