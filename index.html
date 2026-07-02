@@ -672,6 +672,7 @@
   }
   .game-row.win  { border-left-color: #2a7a4f; }
   .game-row.loss { border-left-color: #8a2a2a; }
+  .game-row.tie  { border-left-color: var(--cream-dim); }
   .game-row.upcoming { border-left-color: rgba(61,174,224,0.3); }
   .game-date {
     font-family: 'Bebas Neue', sans-serif;
@@ -710,6 +711,7 @@
   }
   .game-score.win  { color: #4caf76; }
   .game-score.loss { color: #e05555; }
+  .game-score.tie  { color: var(--cream-bright); }
   .game-score.upcoming { color: var(--text-muted); font-size: 1rem; font-family: 'Barlow Condensed', sans-serif; letter-spacing: 0.1em; }
   .result-tag {
     font-family: 'Barlow Condensed', sans-serif;
@@ -724,6 +726,7 @@
   }
   .result-tag.win  { background: rgba(42,122,79,0.2); color: #4caf76; border: 1px solid rgba(42,122,79,0.4); }
   .result-tag.loss { background: rgba(138,42,42,0.2); color: #e05555; border: 1px solid rgba(138,42,42,0.4); }
+  .result-tag.tie  { background: rgba(212,201,168,0.12); color: var(--cream-bright); border: 1px solid rgba(138,127,96,0.5); }
   .result-tag.upcoming { background: rgba(61,174,224,0.1); color: var(--blue); border: 1px solid rgba(61,174,224,0.3); }
 
   /* ── GALLERY ── */
@@ -1342,7 +1345,7 @@ function renderNextGame(rows) {
   if (!banner) return;
   const next = rows.find(r => {
     const result = (r[3] || '').trim().toLowerCase();
-    return result !== 'w' && result !== 'l';
+    return result !== 'w' && result !== 'l' && result !== 't';
   });
   if (!next) {
     banner.innerHTML = '<p class="next-game-text">No upcoming games scheduled</p>';
@@ -1376,9 +1379,9 @@ function renderSchedule(rows) {
   const list = document.getElementById('schedule-list');
   list.innerHTML = '';
   rows.forEach(r => {
-    const result = (r[3] || '').toLowerCase();
-    const cls = result === 'w' ? 'win' : result === 'l' ? 'loss' : 'upcoming';
-    const tag = cls === 'win' ? 'W' : cls === 'loss' ? 'L' : 'TBD';
+    const result = (r[3] || '').trim().toLowerCase();
+    const cls = result === 'w' ? 'win' : result === 'l' ? 'loss' : result === 't' ? 'tie' : 'upcoming';
+    const tag = cls === 'win' ? 'W' : cls === 'loss' ? 'L' : cls === 'tie' ? 'T' : 'TBD';
     const score = (r[4] && r[5]) ? `${r[4]}–${r[5]}` : '&mdash;';
     const dateStr = r[0].split(' ');
     list.innerHTML += `
