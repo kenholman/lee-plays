@@ -14,12 +14,19 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>News | Lee Holman #88 | Austin Capitals 14U AA</title>
 <meta name="description" content="All news, updates, and game recaps for Lee Holman #88 of the Austin Capitals 14U AA hockey team.">
+<link rel="canonical" href="https://leeplayshockey.com/news.html">
 <meta property="og:title" content="News | Lee Holman #88 | Austin Capitals 14U AA">
 <meta property="og:description" content="All news, updates, and game recaps for Lee Holman #88, Austin Capitals 14U AA.">
 <meta property="og:image" content="https://leeplayshockey.com/lee-hero.jpg">
 <meta property="og:url" content="https://leeplayshockey.com/news.html">
 <meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="News | Lee Holman #88 | Austin Capitals 14U AA">
+<meta name="twitter:description" content="All news, updates, and game recaps for Lee Holman #88, Austin Capitals 14U AA.">
+<meta name="twitter:image" content="https://leeplayshockey.com/lee-hero.jpg">
 <link rel="icon" href="/favicon.png" type="image/png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<meta name="theme-color" content="#0a1220">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:ital,wght@0,400;0,600;0,700;1,400&family=Barlow+Condensed:wght@400;700;900&display=swap" rel="stylesheet">
@@ -49,6 +56,26 @@
     color: var(--white);
     overflow-x: hidden;
   }
+
+  /* ── SKIP LINK ── */
+  .skip-link {
+    position: fixed;
+    top: -100%;
+    left: 1rem;
+    z-index: 200;
+    background: var(--blue);
+    color: var(--navy);
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 0.6rem 1.2rem;
+    border-radius: 2px;
+    text-decoration: none;
+    transition: top 0.2s;
+  }
+  .skip-link:focus { top: 1rem; }
 
   /* ── NAV ── */
   nav {
@@ -329,6 +356,8 @@
 </head>
 <body>
 
+<a href="#news-archive" class="skip-link">Skip to content</a>
+
 <!-- NAV -->
 <nav>
  <a href="index.html#hero" class="logo">Lee Holman #88 | Capitals 14U AA</a>
@@ -346,7 +375,7 @@
 <div class="nav-overlay" id="nav-overlay"></div>
 
 <!-- NEWS ARCHIVE -->
-<section id="news-archive">
+<section id="news-archive" tabindex="-1">
  <div class="container">
  <p class="section-label">Every Update</p>
  <h2 class="section-title">News Archive</h2>

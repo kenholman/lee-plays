@@ -12,6 +12,8 @@
   gtag('config', 'G-NT9Z12L0L4');
 </script> 
 <link rel="icon" href="/favicon.png" type="image/png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<meta name="theme-color" content="#0a1220">
 <link rel="preload" href="lee-hero.jpg" as="image" fetchpriority="high">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -85,6 +87,28 @@
     color: var(--white);
     overflow-x: hidden;
   }
+
+  /* ── SKIP LINK ── */
+  /* Hidden until focused via keyboard; lets keyboard and screen-reader
+     users jump past the nav links straight to the page content. */
+  .skip-link {
+    position: fixed;
+    top: -100%;
+    left: 1rem;
+    z-index: 200;
+    background: var(--blue);
+    color: var(--navy);
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 0.6rem 1.2rem;
+    border-radius: 2px;
+    text-decoration: none;
+    transition: top 0.2s;
+  }
+  .skip-link:focus { top: 1rem; }
 
   /* ── NAV ── */
   nav {
@@ -948,6 +972,10 @@
     cursor: pointer;
     line-height: 1;
     transition: color 0.2s;
+    background: none;
+    border: none;
+    padding: 0;
+    font-family: inherit;
   }
   .lightbox-close:hover { color: var(--blue-bright); }
   .gallery-grid .gitem img { cursor: zoom-in; }
@@ -1044,6 +1072,8 @@
 </head>
 <body>
 
+<a href="#hero" class="skip-link">Skip to content</a>
+
 <!-- NAV -->
 <nav>
  <a href="#hero" class="logo">Lee Holman #88 | Capitals 14U AA</a>
@@ -1062,7 +1092,7 @@
 <div class="nav-overlay" id="nav-overlay"></div>
 
 <!-- HERO -->
-<section id="hero">
+<section id="hero" tabindex="-1">
  <div class="bg"></div>
  <div class="content">
  <p class="eyebrow">Austin Capitals &mdash; 14U &mdash; Forward</p>
@@ -1230,8 +1260,8 @@
 </footer>
 
 <!-- LIGHTBOX -->
-<div id="lightbox" class="lightbox" onclick="closeLightbox(event)">
- <span class="lightbox-close" onclick="closeLightbox(event)">&times;</span>
+<div id="lightbox" class="lightbox" role="dialog" aria-modal="true" aria-label="Photo viewer" onclick="closeLightbox(event)">
+ <button class="lightbox-close" id="lightbox-close" aria-label="Close photo viewer" onclick="closeLightbox(event)">&times;</button>
  <img id="lightbox-img" src="" alt="">
  <div id="lightbox-caption" class="lightbox-caption"></div>
 </div>
@@ -1331,9 +1361,10 @@ async function loadStats() {
     document.getElementById('stats-table-container').innerHTML = html;
     loadSchedule(text);
   } catch(e) {
-    document.getElementById('stats-status').textContent = 'Error loading';
+    console.error('Stats load failed:', e);
+    document.getElementById('stats-status').textContent = 'Temporarily unavailable';
     document.getElementById('stats-table-container').innerHTML =
-      '<p class="loading-msg">Could not load stats. Check your Sheet ID and sharing settings.</p>';
+      '<p class="loading-msg">Stats are temporarily unavailable &mdash; check back soon.</p>';
     loadSchedule(null);
   }
 }
@@ -1510,17 +1541,30 @@ window.addEventListener('scroll', () => {
 });
 
 // ─── LIGHTBOX ───
-function openLightbox(src, caption) {
-  document.getElementById('lightbox-img').src = src;
+// Keyboard support: gallery photos are focusable (Tab) and open with
+// Enter or Space. Focus moves to the Close button while open and
+// returns to the photo that opened it when closed.
+let lightboxReturnFocus = null;
+
+function openLightbox(src, caption, trigger) {
+  const img = document.getElementById('lightbox-img');
+  img.src = src;
+  img.alt = caption || 'Gallery photo';
   document.getElementById('lightbox-caption').textContent = caption || '';
   document.getElementById('lightbox').classList.add('active');
   document.body.style.overflow = 'hidden';
+  lightboxReturnFocus = trigger || null;
+  document.getElementById('lightbox-close').focus();
 }
 
 function closeLightbox(e) {
   if (e && e.target && e.target.id === 'lightbox-img') return;
   document.getElementById('lightbox').classList.remove('active');
   document.body.style.overflow = '';
+  if (lightboxReturnFocus) {
+    lightboxReturnFocus.focus();
+    lightboxReturnFocus = null;
+  }
 }
 
 document.addEventListener('keydown', e => {
@@ -1528,12 +1572,21 @@ document.addEventListener('keydown', e => {
 });
 
 document.querySelectorAll('.gallery-grid .gitem img').forEach(img => {
-  img.addEventListener('click', () => {
+  img.setAttribute('tabindex', '0');
+  img.setAttribute('role', 'button');
+  const activate = () => {
     const next = img.nextElementSibling;
     const caption = (next && next.classList.contains('gitem-caption'))
       ? next.textContent
       : (img.getAttribute('alt') || '');
-    openLightbox(img.getAttribute('src'), caption);
+    openLightbox(img.getAttribute('src'), caption, img);
+  };
+  img.addEventListener('click', activate);
+  img.addEventListener('keydown', e => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      activate();
+    }
   });
 });
 
