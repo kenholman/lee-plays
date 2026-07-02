@@ -1278,6 +1278,7 @@
 const SHEET_ID   = '1zZt8bkcAjkQjB-QpITyjl57otbJum33GRUEgDFttOhA';
 const STATS_GID  = '0';      // gid of the Stats tab
 const SCHED_GID  = '600163643';      // gid of the Schedule tab
+const SEASON_START_YEAR = 2026;      // first calendar year of the season (2026 for the 2026-27 season) — update each fall
 
 function csvUrl(gid) {
   return `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=${gid}`;
@@ -1385,18 +1386,67 @@ async function loadSchedule(statsText) {
   }
 }
 
+// Parses a schedule date like "Sep 14", "Sep 14 2026", "9/14", or
+// "9/14/2026" into a Date. When no year is given, the season year is
+// inferred: Aug-Dec belongs to SEASON_START_YEAR, Jan-Jul to the year
+// after. Returns null for anything it can't understand.
+function parseGameDate(str) {
+  if (!str) return null;
+  const s = str.trim();
+  const seasonYear = m => (m >= 7 ? SEASON_START_YEAR : SEASON_START_YEAR + 1);
+  // Numeric: 9/14, 9-14, 9/14/26, 9/14/2026
+  let m = s.match(/^(\d{1,2})[\/\-](\d{1,2})(?:[\/\-](\d{2,4}))?$/);
+  if (m) {
+    const month = parseInt(m[1], 10) - 1;
+    const day = parseInt(m[2], 10);
+    let year = m[3] ? parseInt(m[3], 10) : seasonYear(month);
+    if (year < 100) year += 2000;
+    if (month < 0 || month > 11 || day < 1 || day > 31) return null;
+    return new Date(year, month, day);
+  }
+  // Text: "Sep 14", "September 14", "Sep 14, 2026"
+  m = s.match(/^([A-Za-z]{3,9})\.?\s+(\d{1,2})(?:,?\s+(\d{2,4}))?$/);
+  if (m) {
+    const months = ['jan','feb','mar','apr','may','jun','jul','aug','sep','oct','nov','dec'];
+    const month = months.indexOf(m[1].slice(0, 3).toLowerCase());
+    if (month === -1) return null;
+    const day = parseInt(m[2], 10);
+    let year = m[3] ? parseInt(m[3], 10) : seasonYear(month);
+    if (year < 100) year += 2000;
+    if (day < 1 || day > 31) return null;
+    return new Date(year, month, day);
+  }
+  return null;
+}
+
 function renderNextGame(rows) {
   const banner = document.getElementById('next-game-banner');
   if (!banner) return;
-  const next = rows.find(r => {
+  // Unplayed = no W/L/T result entered yet.
+  const candidates = rows.filter(r => {
     const result = (r[3] || '').trim().toLowerCase();
     return result !== 'w' && result !== 'l' && result !== 't';
   });
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const parsed = candidates.map(r => ({ r: r, d: parseGameDate(r[0]) }));
+  let next;
+  if (parsed.some(x => x.d)) {
+    // Dates are readable: the next game is the first unplayed game
+    // dated today or later. Past-dated unplayed games (postponed, or
+    // a result not yet entered) are never shown as "next".
+    const hit = parsed.find(x => x.d && x.d >= today);
+    next = hit ? hit.r : null;
+  } else {
+    // No date could be parsed (unexpected format in the sheet):
+    // fall back to the original behavior of taking the first
+    // unplayed row, so the banner never breaks outright.
+    next = candidates[0] || null;
+  }
   if (!next) {
     banner.innerHTML = '<p class="next-game-text">No upcoming games scheduled</p>';
     return;
   }
-  const dateStr = next[0].split(' ');
   banner.innerHTML = `
     <div class="next-game-inner">
       <span class="next-game-label">Next Game</span>
@@ -1422,14 +1472,13 @@ function renderSchedule(rows) {
   renderNextGame(rows);
   renderTeamRecord(rows);
   const list = document.getElementById('schedule-list');
-  list.innerHTML = '';
-  rows.forEach(r => {
+  list.innerHTML = rows.map(r => {
     const result = (r[3] || '').trim().toLowerCase();
     const cls = result === 'w' ? 'win' : result === 'l' ? 'loss' : result === 't' ? 'tie' : 'upcoming';
     const tag = cls === 'win' ? 'W' : cls === 'loss' ? 'L' : cls === 'tie' ? 'T' : 'TBD';
     const score = (r[4] && r[5]) ? `${r[4]}–${r[5]}` : '&mdash;';
     const dateStr = r[0].split(' ');
-    list.innerHTML += `
+    return `
       <div class="game-row ${cls}">
         <div class="game-date">${dateStr[0]}<span>${dateStr[1]||''}</span></div>
         <div class="game-info">
@@ -1439,7 +1488,7 @@ function renderSchedule(rows) {
         <div class="game-score ${cls}">${score}</div>
         <span class="result-tag ${cls}">${tag}</span>
       </div>`;
-  });
+  }).join('');
 }
 
 function renderSampleSchedule() {
