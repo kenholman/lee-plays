@@ -891,6 +891,19 @@
     transition: background 0.2s;
   }
   .form-submit:hover { background: var(--blue-bright); }
+  .form-submit:disabled { opacity: 0.6; cursor: default; }
+  .form-status {
+    margin-top: 1rem;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    min-height: 1.2em;
+  }
+  .form-status.ok  { color: #4caf76; }
+  .form-status.err { color: #e05555; }
   @media (max-width: 768px) {
     .form-row { grid-template-columns: 1fr; }
   }
@@ -1181,7 +1194,7 @@
  <p class="section-label">Get In Touch</p>
  <h2 class="section-title">Contact</h2>
  <div class="gold-rule"></div>
- <form class="contact-form" action="https://formspree.io/f/xojovogy" method="POST">
+ <form class="contact-form" id="contact-form" action="https://formspree.io/f/xojovogy" method="POST">
    <div class="form-row">
      <div class="form-group">
        <label for="name">Name</label>
@@ -1197,6 +1210,7 @@
      <textarea id="message" name="message" rows="5" placeholder="Say something..." required></textarea>
    </div>
    <button type="submit" class="form-submit">Send Message</button>
+   <p class="form-status" id="form-status" role="status" aria-live="polite"></p>
  </form>
  </div>
 </section>
@@ -1441,6 +1455,7 @@ async function loadNews() {
 
       let mediaHtml = '';
       if (iframe) {
+        iframe.setAttribute('loading', 'lazy');
         mediaHtml = `<div class="video-wrap">${iframe.outerHTML}</div>`;
       } else if (img) {
         mediaHtml = `<div class="news-card-media"><img src="${img.getAttribute('src')}" alt="${title}" loading="lazy"></div>`;
@@ -1520,6 +1535,40 @@ document.querySelectorAll('.gallery-grid .gitem img').forEach(img => {
       : (img.getAttribute('alt') || '');
     openLightbox(img.getAttribute('src'), caption);
   });
+});
+
+// ─── CONTACT FORM ───
+// Submits to Formspree in the background so visitors stay on the site.
+// If JavaScript is unavailable, the form's action attribute still works
+// as a normal POST (Formspree's default thank-you page).
+const contactForm = document.getElementById('contact-form');
+const formStatus  = document.getElementById('form-status');
+
+contactForm.addEventListener('submit', async e => {
+  e.preventDefault();
+  const btn = contactForm.querySelector('.form-submit');
+  btn.disabled = true;
+  formStatus.className = 'form-status';
+  formStatus.textContent = 'Sending\u2026';
+  try {
+    const res = await fetch(contactForm.action, {
+      method: 'POST',
+      body: new FormData(contactForm),
+      headers: { 'Accept': 'application/json' }
+    });
+    if (res.ok) {
+      contactForm.reset();
+      formStatus.textContent = 'Message sent \u2014 thanks!';
+      formStatus.classList.add('ok');
+    } else {
+      formStatus.textContent = 'Something went wrong \u2014 please try again in a minute.';
+      formStatus.classList.add('err');
+    }
+  } catch (err) {
+    formStatus.textContent = 'Could not send \u2014 check your connection and try again.';
+    formStatus.classList.add('err');
+  }
+  btn.disabled = false;
 });
 
 loadStats();

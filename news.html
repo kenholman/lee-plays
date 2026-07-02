@@ -384,6 +384,9 @@ async function loadFullNews() {
     const res = await fetch('posts.html');
     const text = await res.text();
     const doc = new DOMParser().parseFromString(text, 'text/html');
+    // Lazy-load all embedded videos, even if the attribute was
+    // forgotten when the post was added to posts.html.
+    doc.querySelectorAll('iframe').forEach(f => f.setAttribute('loading', 'lazy'));
     const articles = Array.from(doc.querySelectorAll('article.post'));
     if (!articles.length) {
       list.innerHTML = '<p class="loading-msg">No news posted yet. Check back soon.</p>';
