@@ -81,6 +81,35 @@
     transition: color 0.2s;
   }
   nav ul a:hover { color: var(--blue-bright); }
+  .nav-toggle {
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    gap: 5px;
+    width: 32px; height: 32px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+  }
+  .nav-toggle span {
+    display: block;
+    width: 100%;
+    height: 2px;
+    background: var(--blue-bright);
+    transition: transform 0.25s, opacity 0.25s;
+  }
+  .nav-toggle.active span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+  .nav-toggle.active span:nth-child(2) { opacity: 0; }
+  .nav-toggle.active span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+  .nav-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.45);
+    z-index: 98;
+  }
+  .nav-overlay.active { display: block; }
 
   /* ── 404 CONTENT ── */
   .fourohfour {
@@ -199,7 +228,25 @@
   footer strong { color: var(--blue); }
 
   @media (max-width: 768px) {
-    nav ul { display: none; }
+    .nav-toggle { display: flex; }
+    nav ul {
+      position: fixed;
+      top: 0; right: -100%;
+      height: 100vh;
+      width: 70%;
+      max-width: 300px;
+      background: rgba(8,16,28,0.97);
+      backdrop-filter: blur(12px);
+      flex-direction: column;
+      align-items: flex-start;
+      justify-content: center;
+      gap: 2rem;
+      padding: 2rem;
+      transition: right 0.3s ease;
+      z-index: 99;
+    }
+    nav ul.active { right: 0; }
+    nav ul a { font-size: 1.1rem; }
   }
 </style>
 </head>
@@ -208,7 +255,10 @@
 <!-- NAV -->
 <nav>
   <a href="/" class="logo">Lee Holman #88 | Capitals 14U AA</a>
-  <ul>
+  <button class="nav-toggle" id="nav-toggle" aria-label="Toggle menu" aria-expanded="false">
+    <span></span><span></span><span></span>
+  </button>
+  <ul id="nav-menu">
     <li><a href="/news.html">News</a></li>
     <li><a href="/#about">About</a></li>
     <li><a href="/#stats">Stats</a></li>
@@ -216,6 +266,7 @@
     <li><a href="/#gallery">Gallery</a></li>
   </ul>
 </nav>
+<div class="nav-overlay" id="nav-overlay"></div>
 
 <!-- 404 -->
 <main class="fourohfour">
@@ -237,5 +288,27 @@
   <p class="footer-credit" style="margin-top:0.6rem;font-size:0.7rem;color:#60c8f5;">Site built by Ken Holman</p>
 </footer>
 
+<script>
+// ─── MOBILE NAV ───
+const navToggle = document.getElementById('nav-toggle');
+const navMenu = document.getElementById('nav-menu');
+const navOverlay = document.getElementById('nav-overlay');
+
+function closeMobileNav() {
+  navToggle.classList.remove('active');
+  navMenu.classList.remove('active');
+  navOverlay.classList.remove('active');
+  navToggle.setAttribute('aria-expanded', 'false');
+}
+
+navToggle.addEventListener('click', () => {
+  const isOpen = navMenu.classList.toggle('active');
+  navToggle.classList.toggle('active', isOpen);
+  navOverlay.classList.toggle('active', isOpen);
+  navToggle.setAttribute('aria-expanded', String(isOpen));
+});
+navOverlay.addEventListener('click', closeMobileNav);
+navMenu.querySelectorAll('a').forEach(link => link.addEventListener('click', closeMobileNav));
+</script>
 </body>
 </html>
