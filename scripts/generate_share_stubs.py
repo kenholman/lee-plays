@@ -1,1 +1,254 @@
+#!/usr/bin/env python3
+"""
+generate_share_stubs.py — leeplayshockey.com share-stub generator
 
+Reads posts.html and writes one small "share stub" page per post into
+/news/. Each stub exists so that Facebook / X link scrapers (which do
+not execute JavaScript and never see URL #fragments) can read per-post
+Open Graph tags — title, description, and the post's actual image or
+YouTube thumbnail — instead of the site-wide hero image.
+
+Human visitors who open a stub are instantly redirected to the real
+post at /news.html#slug.
+
+Run automatically by .github/workflows/share-stubs.yml whenever
+posts.html changes. Can also be run locally: python3 scripts/generate_share_stubs.py
+
+Uses only the Python standard library. Idempotent: unchanged stubs are
+not rewritten, and the sitemap date is only bumped when something
+actually changed.
+
+DO NOT hand-edit files in /news/ — they are overwritten by this script.
+"""
+
+import os
+import re
+import sys
+import datetime
+from html.parser import HTMLParser
+
+SITE = "https://leeplayshockey.com"
+POSTS_FILE = "posts.html"
+STUB_DIR = "news"
+SITEMAP_FILE = "sitemap.xml"
+FALLBACK_IMAGE = SITE + "/lee-hero.jpg"
+DESC_MAX = 160
+
+
+def news_slug(date, title):
+    """EXACT replica of newsSlug() in index.html / news.html:
+    (date + '-' + title).toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/(^-|-$)/g, '')
+    """
+    s = (date + "-" + title).lower()
+    s = re.sub(r"[^a-z0-9]+", "-", s)
+    s = re.sub(r"(^-|-$)", "", s)
+    return s
+
+
+class PostParser(HTMLParser):
+    """Extracts article.post blocks: data-date, data-title,
+    first <img> src, first <iframe> src, first <p> text."""
+
+    def __init__(self):
+        super().__init__()
+        self.posts = []
+        self._in_post = False
+        self._depth = 0
+        self._current = None
+        self._in_p = False
+        self._p_text = []
+
+    VOID_TAGS = {"img", "br", "hr", "input", "meta", "link", "source",
+                 "area", "base", "col", "embed", "track", "wbr"}
+
+    def handle_starttag(self, tag, attrs):
+        a = dict(attrs)
+        if tag == "article" and "post" in (a.get("class") or "").split():
+            self._in_post = True
+            self._depth = 1
+            self._current = {
+                "date": (a.get("data-date") or "").strip(),
+                "title": (a.get("data-title") or "").strip(),
+                "img": None,
+                "iframe": None,
+                "desc": None,
+            }
+            return
+        if not self._in_post:
+            return
+        # Void elements (like <img>) never get a closing tag, so they
+        # must not affect nesting depth.
+        if tag in self.VOID_TAGS:
+            if tag == "img" and self._current["img"] is None:
+                self._current["img"] = (a.get("src") or "").strip()
+            return
+        self._depth += 1
+        if tag == "iframe" and self._current["iframe"] is None:
+            self._current["iframe"] = (a.get("src") or "").strip()
+        elif tag == "p" and self._current["desc"] is None:
+            self._in_p = True
+            self._p_text = []
+
+    def handle_startendtag(self, tag, attrs):
+        # self-closing tags (<img .../>) don't change depth
+        a = dict(attrs)
+        if self._in_post and tag == "img" and self._current["img"] is None:
+            self._current["img"] = (a.get("src") or "").strip()
+
+    def handle_endtag(self, tag):
+        if not self._in_post:
+            return
+        if tag == "p" and self._in_p:
+            self._in_p = False
+            text = re.sub(r"\s+", " ", "".join(self._p_text)).strip()
+            if text:
+                self._current["desc"] = text
+        self._depth -= 1
+        if self._depth <= 0:
+            self._in_post = False
+            self.posts.append(self._current)
+            self._current = None
+
+    def handle_data(self, data):
+        if self._in_post and self._in_p:
+            self._p_text.append(data)
+
+
+def esc(s):
+    """Escape for use inside an HTML attribute."""
+    return (
+        s.replace("&", "&amp;")
+        .replace('"', "&quot;")
+        .replace("<", "&lt;")
+        .replace(">", "&gt;")
+    )
+
+
+def youtube_thumb(iframe_src):
+    m = re.search(r"youtube(?:-nocookie)?\.com/embed/([A-Za-z0-9_-]{6,})", iframe_src)
+    if m:
+        return "https://img.youtube.com/vi/%s/hqdefault.jpg" % m.group(1)
+    return None
+
+
+def pick_image(post):
+    if post["img"]:
+        src = post["img"]
+        if src.startswith("http"):
+            return src
+        if not src.startswith("/"):
+            src = "/" + src
+        return SITE + src
+    if post["iframe"]:
+        t = youtube_thumb(post["iframe"])
+        if t:
+            return t
+    return FALLBACK_IMAGE
+
+
+def truncate(text, limit):
+    if len(text) <= limit:
+        return text
+    cut = text[: limit - 1].rsplit(" ", 1)[0]
+    return cut + "\u2026"
+
+
+STUB_TEMPLATE = """<!DOCTYPE html>
+<!-- AUTO-GENERATED by scripts/generate_share_stubs.py - DO NOT EDIT BY HAND.
+     This page exists so link scrapers (Facebook, X) see per-post preview
+     tags. Human visitors are redirected to the real post immediately. -->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{title} | Lee Holman #88 | Austin Capitals 14U AA</title>
+<meta name="robots" content="noindex">
+<link rel="canonical" href="{site}/news.html">
+<link rel="icon" href="/favicon.png" type="image/png">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Lee Holman #88 | Austin Capitals 14U AA">
+<meta property="og:title" content="{title}">
+<meta property="og:description" content="{desc}">
+<meta property="og:image" content="{image}">
+<meta property="og:url" content="{site}/news/{slug}.html">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="{title}">
+<meta name="twitter:description" content="{desc}">
+<meta name="twitter:image" content="{image}">
+<style>
+  body {{ background: #0a1220; color: #f5f3ef; font-family: sans-serif;
+         display: flex; align-items: center; justify-content: center;
+         min-height: 100vh; margin: 0; }}
+  a {{ color: #60c8f5; }}
+</style>
+<script>location.replace('/news.html#{slug}');</script>
+</head>
+<body>
+<p><a href="/news.html#{slug}">Continue to the story &rarr;</a></p>
+</body>
+</html>
+"""
+
+
+def main():
+    if not os.path.exists(POSTS_FILE):
+        print("ERROR: %s not found (run from repo root)" % POSTS_FILE)
+        sys.exit(1)
+
+    with open(POSTS_FILE, encoding="utf-8") as f:
+        parser = PostParser()
+        parser.feed(f.read())
+
+    posts = [p for p in parser.posts if p["date"] and p["title"]]
+    if not posts:
+        print("No posts found in %s - nothing to do." % POSTS_FILE)
+        return
+
+    os.makedirs(STUB_DIR, exist_ok=True)
+    changed = 0
+    for post in posts:
+        slug = news_slug(post["date"], post["title"])
+        desc = truncate(post["desc"] or ("News from Lee Holman's season with the Austin Capitals 14U AA."), DESC_MAX)
+        stub = STUB_TEMPLATE.format(
+            title=esc(post["title"]),
+            desc=esc(desc),
+            image=esc(pick_image(post)),
+            slug=slug,
+            site=SITE,
+        )
+        path = os.path.join(STUB_DIR, slug + ".html")
+        old = None
+        if os.path.exists(path):
+            with open(path, encoding="utf-8") as f:
+                old = f.read()
+        if old != stub:
+            with open(path, "w", encoding="utf-8") as f:
+                f.write(stub)
+            changed += 1
+            print("WROTE  %s" % path)
+        else:
+            print("OK     %s (unchanged)" % path)
+
+    # Bump the news.html <lastmod> in the sitemap only when stubs changed
+    # (i.e., posts.html content actually changed).
+    if changed and os.path.exists(SITEMAP_FILE):
+        today = datetime.date.today().isoformat()
+        with open(SITEMAP_FILE, encoding="utf-8") as f:
+            xml = f.read()
+        new_xml = re.sub(
+            r"(<loc>%s/news\.html</loc>\s*<lastmod>)[0-9-]+(</lastmod>)" % re.escape(SITE),
+            r"\g<1>%s\g<2>" % today,
+            xml,
+        )
+        if new_xml != xml:
+            with open(SITEMAP_FILE, "w", encoding="utf-8") as f:
+                f.write(new_xml)
+            print("WROTE  %s (news.html lastmod -> %s)" % (SITEMAP_FILE, today))
+
+    print("Done. %d post(s), %d stub(s) written/updated." % (len(posts), changed))
+
+
+if __name__ == "__main__":
+    main()
