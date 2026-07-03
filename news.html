@@ -425,7 +425,11 @@ async function loadFullNews() {
       const date = a.getAttribute('data-date') || '';
       const title = a.getAttribute('data-title') || 'Untitled';
       const slug = newsSlug(date, title);
-      const postUrl = `https://leeplayshockey.com/news.html#${slug}`;
+      // Share buttons hand out the post's share-stub URL (/news/slug.html)
+      // rather than news.html#slug, because scrapers like Facebook never
+      // see #fragments. The stub carries this post's own preview image
+      // and instantly redirects human visitors back here.
+      const postUrl = `https://leeplayshockey.com/news/${slug}.html`;
       const fbUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(postUrl)}`;
       const xUrl  = `https://twitter.com/intent/tweet?url=${encodeURIComponent(postUrl)}&text=${encodeURIComponent(title)}`;
       return `

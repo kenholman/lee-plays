@@ -2,6 +2,14 @@
   POSTS DATA FILE — this file is never viewed directly by visitors.
   Both index.html and news.html read from this file automatically.
 
+  SHARE PREVIEWS ARE AUTOMATIC: when you commit a change to this file,
+  a GitHub Action (.github/workflows/share-stubs.yml) generates one
+  small share-stub page per post in the /news/ folder, so Facebook and
+  X link previews show each post's own photo (or YouTube thumbnail)
+  instead of the site hero image. It also bumps the sitemap date for
+  you. NEVER hand-edit files in /news/ — they are overwritten. Allow
+  a minute or two after committing for the stubs to appear.
+
   HOW TO ADD A NEW STORY:
   1. Copy one <article class="post">...</article> block below.
   2. Paste your copy at the very TOP of the list, just under this comment.
