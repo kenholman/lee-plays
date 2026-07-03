@@ -1,1 +1,47 @@
+# AUTO SHARE-STUB GENERATION — leeplayshockey.com
+#
+# Whenever posts.html changes on main, this workflow runs
+# scripts/generate_share_stubs.py, which writes one small share-stub
+# page per post into /news/ (so Facebook/X show the post's own image
+# in link previews) and bumps the news.html <lastmod> in sitemap.xml.
+#
+# It can also be run by hand from the repo's Actions tab
+# ("Run workflow" button) thanks to workflow_dispatch.
+#
+# Requires: Settings -> Actions -> General -> Workflow permissions
+# set to "Read and write permissions" (one-time switch).
 
+name: Generate share stubs
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - posts.html
+      - scripts/generate_share_stubs.py
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  stubs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v4
+
+      - name: Generate share stubs
+        run: python3 scripts/generate_share_stubs.py
+
+      - name: Commit and push if anything changed
+        run: |
+          git config user.name "share-stub-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add news/ sitemap.xml
+          if git diff --cached --quiet; then
+            echo "No stub changes - nothing to commit."
+          else
+            git commit -m "Auto-generate share stubs"
+            git push
+          fi
