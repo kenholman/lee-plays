@@ -980,6 +980,37 @@
     font-family: inherit;
   }
   .lightbox-close:hover { color: var(--blue-bright); }
+  .lightbox-nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 3rem;
+    height: 3rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(10,18,30,0.55);
+    border: 1px solid rgba(61,174,224,0.3);
+    color: var(--white);
+    font-family: inherit;
+    font-size: 2rem;
+    line-height: 1;
+    padding: 0;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s, border-color 0.2s;
+  }
+  .lightbox-nav:hover {
+    background: rgba(61,174,224,0.15);
+    border-color: var(--blue);
+    color: var(--blue-bright);
+  }
+  .lightbox-prev { left: 1.5rem; }
+  .lightbox-next { right: 1.5rem; }
+  @media (max-width: 768px) {
+    .lightbox-nav { width: 2.5rem; height: 2.5rem; font-size: 1.6rem; }
+    .lightbox-prev { left: 0.6rem; }
+    .lightbox-next { right: 0.6rem; }
+  }
   .gallery-grid .gitem img { cursor: zoom-in; }
 
   /* ── BACK TO TOP ── */
