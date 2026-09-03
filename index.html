@@ -1625,14 +1625,47 @@ window.addEventListener('scroll', () => {
 // ─── LIGHTBOX ───
 // Keyboard support: gallery photos are focusable (Tab) and open with
 // Enter or Space. Focus moves to the Close button while open and
-// returns to the photo that opened it when closed.
+// returns to the photo that opened it when closed. Left/Right arrow
+// keys and the on-screen arrows step through the gallery, wrapping
+// around at either end.
 let lightboxReturnFocus = null;
+let lightboxIndex = 0;
 
-function openLightbox(src, caption, trigger) {
+// Built once at load. The "Photo coming soon" tiles contain no <img>,
+// so they are skipped automatically and never enter the rotation.
+const galleryPhotos = Array.from(
+  document.querySelectorAll('.gallery-grid .gitem img')
+).map(img => {
+  const next = img.nextElementSibling;
+  return {
+    el: img,
+    src: img.getAttribute('src'),
+    caption: (next && next.classList.contains('gitem-caption'))
+      ? next.textContent
+      : (img.getAttribute('alt') || '')
+  };
+});
+
+function showPhoto(i) {
+  if (!galleryPhotos.length) return;
+  lightboxIndex = (i + galleryPhotos.length) % galleryPhotos.length;
+  const photo = galleryPhotos[lightboxIndex];
   const img = document.getElementById('lightbox-img');
-  img.src = src;
-  img.alt = caption || 'Gallery photo';
-  document.getElementById('lightbox-caption').textContent = caption || '';
+  img.src = photo.src;
+  img.alt = photo.caption || 'Gallery photo';
+  document.getElementById('lightbox-caption').textContent = photo.caption || '';
+}
+
+function stepLightbox(delta) {
+  showPhoto(lightboxIndex + delta);
+}
+
+function openLightbox(index, trigger) {
+  showPhoto(index);
+  // Hide the arrows entirely if there is only one photo to move between.
+  const single = galleryPhotos.length < 2;
+  document.getElementById('lightbox-prev').style.display = single ? 'none' : '';
+  document.getElementById('lightbox-next').style.display = single ? 'none' : '';
   document.getElementById('lightbox').classList.add('active');
   document.body.style.overflow = 'hidden';
   lightboxReturnFocus = trigger || null;
@@ -1650,19 +1683,17 @@ function closeLightbox(e) {
 }
 
 document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') closeLightbox();
+  if (e.key === 'Escape') { closeLightbox(); return; }
+  if (!document.getElementById('lightbox').classList.contains('active')) return;
+  if (e.key === 'ArrowLeft')  { e.preventDefault(); stepLightbox(-1); }
+  if (e.key === 'ArrowRight') { e.preventDefault(); stepLightbox(1); }
 });
 
-document.querySelectorAll('.gallery-grid .gitem img').forEach(img => {
+galleryPhotos.forEach((photo, i) => {
+  const img = photo.el;
   img.setAttribute('tabindex', '0');
   img.setAttribute('role', 'button');
-  const activate = () => {
-    const next = img.nextElementSibling;
-    const caption = (next && next.classList.contains('gitem-caption'))
-      ? next.textContent
-      : (img.getAttribute('alt') || '');
-    openLightbox(img.getAttribute('src'), caption, img);
-  };
+  const activate = () => openLightbox(i, img);
   img.addEventListener('click', activate);
   img.addEventListener('keydown', e => {
     if (e.key === 'Enter' || e.key === ' ') {
