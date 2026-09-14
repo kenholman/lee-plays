@@ -1647,8 +1647,10 @@ function renderSchedule(rows) {
       </div>`;
   };
   const phasesPresent = PHASE_ORDER.filter(p => rowsForPhase(rows, p).length);
-  if (phasesPresent.length <= 1) {
-    // Only one phase in the sheet: no headings, same look as before.
+  if (phasesPresent.length === 1 && phasesPresent[0] === 'regular') {
+    // Nothing but regular season games: no headings, same look as before.
+    // Any preseason or playoff game gets a heading so it is never mistaken
+    // for a regular season result.
     list.innerHTML = rows.map(gameRow).join('');
     return;
   }
