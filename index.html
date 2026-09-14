@@ -566,6 +566,32 @@
     margin-left: 0.5rem;
     vertical-align: middle;
   }
+  .phase-toggle {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin: -1rem 0 1.75rem;
+  }
+  .phase-toggle button {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    padding: 0.35rem 0.9rem;
+    background: transparent;
+    border: 1px solid rgba(61,174,224,0.3);
+    color: var(--text-muted);
+    border-radius: 2px;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s, border-color 0.2s;
+  }
+  .phase-toggle button:hover { color: var(--blue-bright); border-color: rgba(61,174,224,0.6); }
+  .phase-toggle button.active {
+    background: rgba(61,174,224,0.15);
+    border-color: var(--blue);
+    color: var(--blue-bright);
+  }
   .stat-cards {
     display: grid;
     grid-template-columns: repeat(8, 1fr);
@@ -680,6 +706,26 @@
   /* ── SCHEDULE ── */
   #schedule { background: var(--navy); }
   .schedule-list { display: flex; flex-direction: column; gap: 1px; }
+  .schedule-phase-heading {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 0.6rem 1.5rem 0.4rem;
+    margin-top: 1.5rem;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.3rem;
+    letter-spacing: 0.12em;
+    color: var(--blue);
+    border-bottom: 1px solid rgba(61,174,224,0.2);
+  }
+  .schedule-phase-heading:first-child { margin-top: 0; }
+  .schedule-phase-heading .phase-record {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    color: var(--text-muted);
+  }
   .game-row {
     display: grid;
     grid-template-columns: 80px 1fr auto auto;
@@ -1199,6 +1245,14 @@
  <span id="stats-status">Loading&hellip;</span>
  </p>
 
+ <!-- Phase toggle -->
+ <div class="phase-toggle" id="phase-toggle" role="group" aria-label="Season phase">
+   <button type="button" class="active" data-phase="regular">Regular</button>
+   <button type="button" data-phase="preseason">Preseason</button>
+   <button type="button" data-phase="playoffs">Playoffs</button>
+   <button type="button" data-phase="combined">Combined</button>
+ </div>
+
  <!-- Summary cards -->
  <div class="stat-cards" id="stat-cards">
  <div class="stat-card"><span class="val" id="c-gp">—</span><span class="lbl">GP</span></div>
@@ -1226,7 +1280,7 @@
  <h2 class="section-title">Schedule</h2>
  <div class="gold-rule"></div>
  <p class="stats-meta">
-   Season Record
+   Regular Season Record
    <span id="team-record">&mdash;</span>
  </p>
  <div class="schedule-list" id="schedule-list">
@@ -1305,8 +1359,9 @@
 <script>
 // ─────────────────────────────────────────────────────────────────────
 //  CONFIGURATION — replace SHEET_ID with your published Google Sheet ID
-//  Stats sheet:    columns = Date, Opponent, GF, GA, G, A, +/-, PIM, PPG, SHG, GWG
-//  Schedule sheet: columns = Date, Opponent, Location, Result, GF, GA
+//  Stats sheet:    columns = Date, Opponent, GF, GA, G, A, +/-, PIM, PPG, SHG, Phase
+//  Schedule sheet: columns = Date, Opponent, Location, Result, GF, GA, Phase
+//  Phase is located by header name, not position. Blank = Regular season.
 // ─────────────────────────────────────────────────────────────────────
 const SHEET_ID   = '1zZt8bkcAjkQjB-QpITyjl57otbJum33GRUEgDFttOhA';
 const STATS_GID  = '0';      // gid of the Stats tab
@@ -1315,6 +1370,41 @@ const SEASON_START_YEAR = 2026;      // first calendar year of the season (2026 
 
 function csvUrl(gid) {
   return `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=${gid}`;
+}
+
+// ─── SEASON PHASE ───
+// Phase values: 'regular' | 'preseason' | 'playoffs'. Anything unrecognized
+// (including blank) is regular season, so normal games need no tag.
+const PHASE_LABELS = { regular: 'Regular Season', preseason: 'Preseason', playoffs: 'Playoffs', combined: 'Combined' };
+const PHASE_ORDER  = ['preseason', 'regular', 'playoffs'];
+
+function normalizePhase(str) {
+  const s = (str || '').toString().trim().toLowerCase();
+  if (s.startsWith('pre')) return 'preseason';
+  if (s.startsWith('play') || s.startsWith('post')) return 'playoffs';
+  return 'regular';
+}
+
+// Finds the Phase column by header name in the raw CSV rows. Returns -1
+// if the sheet has no Phase column, in which case every row is regular.
+function phaseColumnIndex(rows) {
+  for (const r of rows) {
+    const i = r.findIndex(c => (c || '').trim().toLowerCase() === 'phase');
+    if (i !== -1) return i;
+  }
+  return -1;
+}
+
+// Reads the phase off the raw (un-shifted) row so the column A offset
+// logic below cannot move it, then tags the row with a .phase property.
+function tagPhase(rawRow, phaseIdx, row) {
+  row.phase = normalizePhase(phaseIdx >= 0 ? rawRow[phaseIdx] : '');
+  return row;
+}
+
+function rowsForPhase(rows, phase) {
+  if (phase === 'combined') return rows;
+  return rows.filter(r => (r.phase || 'regular') === phase);
 }
 
 function parseCSV(text) {
@@ -1344,10 +1434,42 @@ async function loadStats() {
     const res = await fetch(csvUrl(STATS_GID));
     const text = await res.text();
     const rows = parseCSV(text);
+    const phaseIdx = phaseColumnIndex(rows);
     const data = rows.slice(1)
       .filter(r => r[0] || r[1])
-      .map(r => r[0] ? r : r.slice(1))
+      .map(r => tagPhase(r, phaseIdx, r[0] ? r : r.slice(1)))
       .filter(r => r[0] && r[0].trim() && r[0].trim().toLowerCase() !== 'date');
+
+    statsData = data;
+    renderStats(currentPhase);
+    document.getElementById('stats-status').textContent = 'Live';
+    loadSchedule(text);
+  } catch(e) {
+    console.error('Stats load failed:', e);
+    document.getElementById('stats-status').textContent = 'Temporarily unavailable';
+    document.getElementById('stats-table-container').innerHTML =
+      '<p class="loading-msg">Stats are temporarily unavailable &mdash; check back soon.</p>';
+    loadSchedule(null);
+  }
+}
+
+let statsData = [];
+let currentPhase = 'regular';
+
+function setPhase(phase) {
+  currentPhase = phase;
+  document.querySelectorAll('#phase-toggle button').forEach(b => {
+    b.classList.toggle('active', b.dataset.phase === phase);
+  });
+  renderStats(phase);
+}
+
+document.querySelectorAll('#phase-toggle button').forEach(b => {
+  b.addEventListener('click', () => setPhase(b.dataset.phase));
+});
+
+function renderStats(phase) {
+  const data = rowsForPhase(statsData, phase);
 
     // Totals — only count games that have actually been played (score filled in)
     let gp=0, g=0, a=0, pm=0, pim=0, ppg=0, shg=0;
@@ -1370,7 +1492,6 @@ async function loadStats() {
     document.getElementById('c-pim').textContent = pim;
     document.getElementById('c-ppg').textContent = ppg;
     document.getElementById('c-shg').textContent = shg;
-    document.getElementById('stats-status').textContent = 'Live';
 
     // Table
     let html = `<table>
@@ -1387,20 +1508,15 @@ async function loadStats() {
         <td>${r[6]||0}</td><td>${r[7]||0}</td><td>${r[8]||0}</td><td>${r[9]||0}</td>
       </tr>`;
     });
+    if (!data.length) {
+      html += `<tr><td colspan="10" style="text-align:center;color:var(--text-muted);">No ${PHASE_LABELS[phase].toLowerCase()} games recorded yet</td></tr>`;
+    }
     html += `<tr class="tfoot-row">
-      <td colspan="3">Season Totals</td>
+      <td colspan="3">${PHASE_LABELS[phase]} Totals</td>
       <td>${g}</td><td>${a}</td><td>${g+a}</td>
       <td>${(pm >= 0 ? '+' : '') + pm}</td><td>${pim}</td><td>${ppg}</td><td>${shg}</td>
     </tr></tbody></table>`;
     document.getElementById('stats-table-container').innerHTML = html;
-    loadSchedule(text);
-  } catch(e) {
-    console.error('Stats load failed:', e);
-    document.getElementById('stats-status').textContent = 'Temporarily unavailable';
-    document.getElementById('stats-table-container').innerHTML =
-      '<p class="loading-msg">Stats are temporarily unavailable &mdash; check back soon.</p>';
-    loadSchedule(null);
-  }
 }
 
 // ─── SCHEDULE ───
@@ -1408,10 +1524,12 @@ async function loadSchedule(statsText) {
   try {
     const res = await fetch(csvUrl(SCHED_GID));
     const text = await res.text();
-    const rows = parseCSV(text).slice(1);
+    const allRows = parseCSV(text);
+    const phaseIdx = phaseColumnIndex(allRows);
+    const rows = allRows.slice(1);
     const data = rows
       .filter(r => r[0] || r[1])
-      .map(r => r[0] ? r : r.slice(1))
+      .map(r => tagPhase(r, phaseIdx, r[0] ? r : r.slice(1)))
       .filter(r => r[0] && r[0].trim() && r[0].trim().toLowerCase() !== 'date');
     renderSchedule(data);
   } catch(e) {
@@ -1487,9 +1605,7 @@ function renderNextGame(rows) {
     </div>`;
 }
 
-function renderTeamRecord(rows) {
-  const el = document.getElementById('team-record');
-  if (!el) return;
+function recordString(rows) {
   let w = 0, l = 0, t = 0;
   rows.forEach(r => {
     const res = (r[3] || '').toLowerCase().trim();
@@ -1497,7 +1613,15 @@ function renderTeamRecord(rows) {
     else if (res === 'l') l++;
     else if (res === 't') t++;
   });
-  el.textContent = t > 0 ? `${w}-${l}-${t}` : `${w}-${l}`;
+  return t > 0 ? `${w}-${l}-${t}` : `${w}-${l}`;
+}
+
+// The headline record is regular season only. Preseason and playoff
+// records appear beside their own headings in the schedule list.
+function renderTeamRecord(rows) {
+  const el = document.getElementById('team-record');
+  if (!el) return;
+  el.textContent = recordString(rowsForPhase(rows, 'regular'));
 }
 
 function renderSchedule(rows) {
@@ -1505,7 +1629,7 @@ function renderSchedule(rows) {
   renderNextGame(rows);
   renderTeamRecord(rows);
   const list = document.getElementById('schedule-list');
-  list.innerHTML = rows.map(r => {
+  const gameRow = r => {
     const result = (r[3] || '').trim().toLowerCase();
     const cls = result === 'w' ? 'win' : result === 'l' ? 'loss' : result === 't' ? 'tie' : 'upcoming';
     const tag = cls === 'win' ? 'W' : cls === 'loss' ? 'L' : cls === 'tie' ? 'T' : 'TBD';
@@ -1521,6 +1645,20 @@ function renderSchedule(rows) {
         <div class="game-score ${cls}">${score}</div>
         <span class="result-tag ${cls}">${tag}</span>
       </div>`;
+  };
+  const phasesPresent = PHASE_ORDER.filter(p => rowsForPhase(rows, p).length);
+  if (phasesPresent.length <= 1) {
+    // Only one phase in the sheet: no headings, same look as before.
+    list.innerHTML = rows.map(gameRow).join('');
+    return;
+  }
+  list.innerHTML = phasesPresent.map(p => {
+    const group = rowsForPhase(rows, p);
+    return `
+      <div class="schedule-phase-heading">
+        <span>${PHASE_LABELS[p]}</span>
+        <span class="phase-record">${recordString(group)}</span>
+      </div>` + group.map(gameRow).join('');
   }).join('');
 }
 
