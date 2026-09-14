@@ -289,6 +289,14 @@
     color: var(--white);
   }
   .next-game-text span { color: var(--blue-bright); }
+  .next-game-inner + .next-game-inner { margin-left: 2.5rem; }
+  .next-game-text .res-w { color: #4caf76; }
+  .next-game-text .res-l { color: #e05555; }
+  .next-game-text .res-t { color: var(--cream-bright); }
+  @media (max-width: 700px) {
+    .next-game-inner { display: flex; }
+    .next-game-inner + .next-game-inner { margin-left: 0; margin-top: 0.8rem; }
+  }
 
   /* ── SECTION BASE ── */
   section { padding: 6rem 2rem; }
@@ -1570,9 +1578,35 @@ function parseGameDate(str) {
   return null;
 }
 
+// Most recent game with a W/L/T result entered. Picks by parsed date;
+// if dates cannot be parsed, falls back to the last such row in the sheet.
+function latestResultRow(rows) {
+  const played = rows.filter(r => ['w','l','t'].includes((r[3] || '').trim().toLowerCase()));
+  if (!played.length) return null;
+  const parsed = played.map(r => ({ r: r, d: parseGameDate(r[0]) }));
+  if (!parsed.some(x => x.d)) return played[played.length - 1];
+  let best = null;
+  parsed.forEach(x => { if (x.d && (!best || x.d >= best.d)) best = x; });
+  return best.r;
+}
+
+function latestResultHtml(rows) {
+  const last = latestResultRow(rows);
+  if (!last) return '';
+  const res = (last[3] || '').trim().toLowerCase();
+  const tag = res.toUpperCase();
+  const score = (last[4] && last[5]) ? ` ${last[4]}&ndash;${last[5]}` : '';
+  return `
+    <div class="next-game-inner">
+      <span class="next-game-label">Latest Result</span>
+      <span class="next-game-text"><span class="res-${res}">${tag}${score}</span> vs. <span>${last[1]}</span> &mdash; ${last[0]}</span>
+    </div>`;
+}
+
 function renderNextGame(rows) {
   const banner = document.getElementById('next-game-banner');
   if (!banner) return;
+  const latest = latestResultHtml(rows);
   // Unplayed = no W/L/T result entered yet.
   const candidates = rows.filter(r => {
     const result = (r[3] || '').trim().toLowerCase();
@@ -1595,10 +1629,10 @@ function renderNextGame(rows) {
     next = candidates[0] || null;
   }
   if (!next) {
-    banner.innerHTML = '<p class="next-game-text">No upcoming games scheduled</p>';
+    banner.innerHTML = latest + '<p class="next-game-text">No upcoming games scheduled</p>';
     return;
   }
-  banner.innerHTML = `
+  banner.innerHTML = latest + `
     <div class="next-game-inner">
       <span class="next-game-label">Next Game</span>
       <span class="next-game-text">vs. <span>${next[1]}</span> &mdash; ${next[0]}${next[2] ? ' &mdash; ' + next[2] : ''}</span>
