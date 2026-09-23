@@ -1117,7 +1117,24 @@
     color: var(--blue-bright) !important;
     opacity: 1;
   }
+  .footer-credit {
+    margin-top: 0.8rem;
+    font-size: 0.8rem !important;
+    letter-spacing: 0.1em !important;
+    color: var(--blue-bright) !important;
+    opacity: 1;
+  }
+  .footer-credit a {
+    color: inherit;
+    text-decoration: none;
+    transition: color 0.2s ease;
+  }
+  .footer-credit a:hover,
+  .footer-credit a:focus-visible {
+    color: var(--white);
+  }
 
+  /* ── RESPONSIVE ── */
   /* ── RESPONSIVE ── */
   @media (max-width: 768px) {
     .nav-toggle { display: flex; }
