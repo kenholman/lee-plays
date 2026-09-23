@@ -228,6 +228,15 @@
     color: var(--text-muted);
   }
   footer strong { color: var(--blue); }
+    .footer-credit a {
+    color: inherit;
+    text-decoration: none;
+    transition: color 0.2s ease;
+  }
+  .footer-credit a:hover,
+  .footer-credit a:focus-visible {
+    color: var(--white);
+  }
 
   @media (max-width: 768px) {
     .nav-toggle { display: flex; }
@@ -286,7 +295,7 @@
 
 <!-- FOOTER -->
 <footer>
-  <p class="footer-credit" style="margin-top:0.6rem;font-size:0.7rem;color:#60c8f5;">Site built by Ken Holman</p>
+   <p class="footer-credit" style="font-size:0.8rem;letter-spacing:0.1em;color:#60c8f5;"><a href="https://kenholman.net/">Site built by Ken Holman</a></p>
 </footer>
 
 <script>
