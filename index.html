@@ -1520,7 +1520,7 @@ async function loadStats() {
     document.getElementById('stats-status').textContent = 'Temporarily unavailable';
     document.getElementById('stats-table-container').innerHTML =
       '<p class="loading-msg">Stats are temporarily unavailable &mdash; check back soon.</p>';
-    renderSampleSchedule();
+    renderScheduleUnavailable();
   }
 }
 
@@ -1619,7 +1619,7 @@ async function loadSchedule(statsText) {
       .filter(r => r[0] && r[0].trim() && r[0].trim().toLowerCase() !== 'date');
     renderSchedule(data);
   } catch(e) {
-    renderSampleSchedule();
+    renderScheduleUnavailable();
   }
 }
 
@@ -1738,7 +1738,14 @@ function renderTeamRecord(rows) {
 }
 
 function renderSchedule(rows) {
-  if (!rows || !rows.length) { renderSampleSchedule(); return; }
+  if (!rows || !rows.length) {
+    // The Games tab loaded but has no games in it yet.
+    renderNextGame([]);
+    renderTeamRecord([]);
+    document.getElementById('schedule-list').innerHTML =
+      '<p class="loading-msg">No games scheduled yet.</p>';
+    return;
+  }
   renderNextGame(rows);
   renderTeamRecord(rows);
   const list = document.getElementById('schedule-list');
@@ -1777,13 +1784,16 @@ function renderSchedule(rows) {
   }).join('');
 }
 
-function renderSampleSchedule() {
-  const sample = [
-    ['Sep 14','Westlake Wings','Cedar Park Ice',  'upcoming','',''],
-    ['Sep 21','Round Rock Rink Rats','Chaparral Ice','upcoming','',''],
-    ['Oct 5', 'San Antonio Rampage','Cedar Park Ice','upcoming','',''],
-  ];
-  renderSchedule(sample);
+// Shown when the Games tab can't be loaded. Hides the Next Game banner
+// and blanks the record instead of showing placeholder games that could
+// be mistaken for real ones.
+function renderScheduleUnavailable() {
+  const list = document.getElementById('schedule-list');
+  if (list) list.innerHTML = '<p class="loading-msg">The schedule is temporarily unavailable. Check back soon.</p>';
+  const banner = document.getElementById('next-game-banner');
+  if (banner) banner.style.display = 'none';
+  const record = document.getElementById('team-record');
+  if (record) record.innerHTML = '&mdash;';
 }
 
 // ─── NEWS ───
