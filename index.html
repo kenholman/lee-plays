@@ -293,6 +293,10 @@
   .next-game-text .res-w { color: #4caf76; }
   .next-game-text .res-l { color: #e05555; }
   .next-game-text .res-t { color: var(--cream-bright); }
+  .stat-res.res-w { color: #4caf76; }
+  .stat-res.res-l { color: #e05555; }
+  .stat-res.res-t { color: var(--cream-bright); }
+  .stat-res-tag { font-weight: 700; letter-spacing: 0.1em; }
   @media (max-width: 700px) {
     .next-game-inner { display: flex; }
     .next-game-inner + .next-game-inner { margin-left: 0; margin-top: 0.8rem; }
@@ -1516,7 +1520,18 @@ function renderStats(phase) {
         <th>G</th><th>A</th><th>PTS</th><th>+/−</th><th>PIM</th><th>PPG</th><th>SHG</th>
       </tr></thead><tbody>`;
     data.forEach(r => {
-      const score = `${r[2]}–${r[3]}`;
+      const gfRaw = (r[2] || '').toString().trim();
+      const gaRaw = (r[3] || '').toString().trim();
+      let score = '&ndash;';
+      if (gfRaw !== '' && gaRaw !== '') {
+        const gf = parseInt(gfRaw), ga = parseInt(gaRaw);
+        if (isNaN(gf) || isNaN(ga)) {
+          score = `${gfRaw}&ndash;${gaRaw}`;
+        } else {
+          const res = gf > ga ? 'w' : gf < ga ? 'l' : 't';
+          score = `<span class="stat-res res-${res}"><span class="stat-res-tag">${res.toUpperCase()}</span> ${gfRaw}&ndash;${gaRaw}</span>`;
+        }
+      }
       const pts   = (parseInt(r[4])||0) + (parseInt(r[5])||0);
       html += `<tr>
         <td>${r[0]}</td><td>${r[1]}</td><td>${score}</td>
