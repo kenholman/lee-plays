@@ -1385,6 +1385,7 @@
 const SHEET_ID   = '1zZt8bkcAjkQjB-QpITyjl57otbJum33GRUEgDFttOhA';
 const STATS_GID  = '0';      // gid of the Stats tab
 const SCHED_GID  = '600163643';      // gid of the Schedule tab
+const GAMES_GID  = '760876558';      // gid of the Games tab (one row per game; the site reads only this tab)
 const SEASON_START_YEAR = 2026;      // first calendar year of the season (2026 for the 2026-27 season) — update each fall
 
 function csvUrl(gid) {
@@ -1459,6 +1460,22 @@ function parseCSV(text) {
   });
 }
 
+// ─── GAMES TAB ───
+// Finds the header row and returns { headername: columnIndex } with
+// lowercased names, so columns are read by name, not position.
+// Returns null if no row has both a Date and an Opponent header.
+function gamesColumnMap(rows) {
+  for (const r of rows) {
+    const lower = r.map(c => (c || '').trim().toLowerCase());
+    if (lower.includes('date') && lower.includes('opponent')) {
+      const idx = {};
+      lower.forEach((h, i) => { if (h && !(h in idx)) idx[h] = i; });
+      return idx;
+    }
+  }
+  return null;
+}
+
 // ─── STATS ───
 async function loadStats() {
   if (SHEET_ID === 'YOUR_GOOGLE_SHEET_ID_HERE') {
@@ -1469,25 +1486,41 @@ async function loadStats() {
     return;
   }
   try {
-    const res = await fetch(csvUrl(STATS_GID));
+    const res = await fetch(csvUrl(GAMES_GID));
     const text = await res.text();
     const rows = parseCSV(text);
-    const phaseIdx = phaseColumnIndex(rows);
-    const data = rows.slice(1)
+    const col = gamesColumnMap(rows);
+    if (!col) throw new Error('Games tab: header row not found');
+    const get = (r, name) => (col[name] !== undefined ? (r[col[name]] || '') : '');
+    // Column A offset fix: a row whose column A is blank is shifted left one.
+    const games = rows
       .filter(r => r[0] || r[1])
-      .map(r => tagPhase(r, phaseIdx, r[0] ? r : r.slice(1)))
+      .map(r => r[0] ? r : r.slice(1))
       .filter(r => r[0] && r[0].trim() && r[0].trim().toLowerCase() !== 'date');
 
-    statsData = data;
+    // Stats shape: Date, Opponent, GF, GA, G, A, +/-, PIM, PPG, SHG
+    statsData = games.map(r => {
+      const row = ['date','opponent','gf','ga','g','a','+/-','pim','ppg','shg'].map(h => get(r, h));
+      row.result = get(r, 'result');
+      row.phase = normalizePhase(get(r, 'phase'));
+      return row;
+    });
+    // Schedule shape: Date, Opponent, Location, Result, GF, GA
+    const schedRows = games.map(r => {
+      const row = ['date','opponent','location','result','gf','ga'].map(h => get(r, h));
+      row.phase = normalizePhase(get(r, 'phase'));
+      return row;
+    });
+
     renderStats(currentPhase);
     document.getElementById('stats-status').textContent = 'Live';
-    loadSchedule(text);
+    renderSchedule(schedRows);
   } catch(e) {
     console.error('Stats load failed:', e);
     document.getElementById('stats-status').textContent = 'Temporarily unavailable';
     document.getElementById('stats-table-container').innerHTML =
       '<p class="loading-msg">Stats are temporarily unavailable &mdash; check back soon.</p>';
-    loadSchedule(null);
+    renderSampleSchedule();
   }
 }
 
@@ -1546,8 +1579,12 @@ function renderStats(phase) {
         if (isNaN(gf) || isNaN(ga)) {
           score = `${gfRaw}&ndash;${gaRaw}`;
         } else {
-          const res = gf > ga ? 'w' : gf < ga ? 'l' : 't';
-          score = `<span class="stat-res res-${res}"><span class="stat-res-tag">${res.toUpperCase()}</span> ${gfRaw}&ndash;${gaRaw}</span>`;
+          // The Result column decides (so OTW/OTL show); if it is blank,
+          // fall back to comparing the score.
+          const recorded = parseResult(r.result);
+          const base  = recorded ? recorded.base  : (gf > ga ? 'w' : gf < ga ? 'l' : 't');
+          const label = recorded ? recorded.label : base.toUpperCase();
+          score = `<span class="stat-res res-${base}"><span class="stat-res-tag">${label}</span> ${gfRaw}&ndash;${gaRaw}</span>`;
         }
       }
       const pts   = (parseInt(r[4])||0) + (parseInt(r[5])||0);
