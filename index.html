@@ -728,9 +728,11 @@
     letter-spacing: 0.12em;
     color: var(--blue);
     border-bottom: 1px solid rgba(61,174,224,0.2);
+    gap: 1rem;
   }
   .schedule-phase-heading:first-child { margin-top: 0; }
   .schedule-phase-heading .phase-record {
+    white-space: nowrap;
     font-family: 'Barlow Condensed', sans-serif;
     font-size: 0.7rem;
     font-weight: 700;
@@ -1513,6 +1515,7 @@ async function loadStats() {
     const schedRows = games.map(r => {
       const row = ['date','opponent','location','result','gf','ga'].map(h => get(r, h));
       row.phase = normalizePhase(get(r, 'phase'));
+      row.event = get(r, 'event').trim();
       return row;
     });
 
@@ -1682,7 +1685,7 @@ function latestResultHtml(rows) {
   return `
     <div class="next-game-inner">
       <span class="next-game-label">Latest Result</span>
-      <span class="next-game-text"><span class="res-${res}">${tag}${score}</span> vs. <span>${last[1]}</span> &mdash; ${last[0]}</span>
+      <span class="next-game-text"><span class="res-${res}">${tag}${score}</span> vs. <span>${last[1]}</span> &mdash; ${last[0]}${last.event ? ' &mdash; ' + last.event : ''}</span>
     </div>`;
 }
 
@@ -1717,7 +1720,7 @@ function renderNextGame(rows) {
   banner.innerHTML = latest + `
     <div class="next-game-inner">
       <span class="next-game-label">Next Game</span>
-      <span class="next-game-text">vs. <span>${next[1]}</span> &mdash; ${next[0]}${next[2] ? ' &mdash; ' + next[2] : ''}</span>
+      <span class="next-game-text">vs. <span>${next[1]}</span> &mdash; ${next[0]}${next[2] ? ' &mdash; ' + next[2] : ''}${next.event ? ' &mdash; ' + next.event : ''}</span>
     </div>`;
 }
 
@@ -1778,14 +1781,33 @@ function renderSchedule(rows) {
     list.innerHTML = rows.map(gameRow).join('');
     return;
   }
-  list.innerHTML = phasesPresent.map(p => {
-    const group = rowsForPhase(rows, p);
-    return `
+  const section = (label, group) => `
       <div class="schedule-phase-heading">
-        <span>${PHASE_LABELS[p]}</span>
+        <span>${label}</span>
         <span class="phase-record">${recordString(group)}</span>
       </div>` + group.map(gameRow).join('');
+  list.innerHTML = phasesPresent.map(p => {
+    const group = rowsForPhase(rows, p);
+    if (p !== 'tournament') return section(PHASE_LABELS[p], group);
+    // Each tournament gets its own heading and record, named from the
+    // Event column. Tournament games with no Event share one heading.
+    return eventGroups(group).map(e =>
+      section(e.name ? `Tournament: ${e.name}` : PHASE_LABELS.tournament, e.rows)
+    ).join('');
   }).join('');
+}
+
+// Splits tournament games into one group per Event name, in the order
+// each event first appears in the sheet. Blank Event is its own group.
+function eventGroups(rows) {
+  const groups = [];
+  rows.forEach(r => {
+    const name = r.event || '';
+    let g = groups.find(x => x.name.toLowerCase() === name.toLowerCase());
+    if (!g) { g = { name: name, rows: [] }; groups.push(g); }
+    g.rows.push(r);
+  });
+  return groups;
 }
 
 // Shown when the Games tab can't be loaded. Hides the Next Game banner
