@@ -1269,6 +1269,7 @@
  <div class="phase-toggle" id="phase-toggle" role="group" aria-label="Season phase">
    <button type="button" class="active" data-phase="regular">Regular</button>
    <button type="button" data-phase="preseason">Preseason</button>
+   <button type="button" data-phase="tournament">Tournament</button>
    <button type="button" data-phase="playoffs">Playoffs</button>
    <button type="button" data-phase="combined">Combined</button>
  </div>
@@ -1395,10 +1396,10 @@ function csvUrl(gid) {
 }
 
 // ─── SEASON PHASE ───
-// Phase values: 'regular' | 'preseason' | 'playoffs'. Anything unrecognized
+// Phase values: 'regular' | 'preseason' | 'tournament' | 'playoffs'. Anything unrecognized
 // (including blank) is regular season, so normal games need no tag.
-const PHASE_LABELS = { regular: 'Regular Season', preseason: 'Preseason', playoffs: 'Playoffs', combined: 'Combined' };
-const PHASE_ORDER  = ['preseason', 'regular', 'playoffs'];
+const PHASE_LABELS = { regular: 'Regular Season', preseason: 'Preseason', tournament: 'Tournament', playoffs: 'Playoffs', combined: 'Combined' };
+const PHASE_ORDER  = ['preseason', 'regular', 'tournament', 'playoffs'];
 
 // Result codes accepted in the Schedule sheet's Result column.
 // base: how the game counts in the record (w, l, or t).
@@ -1422,6 +1423,7 @@ function parseResult(value) {
 function normalizePhase(str) {
   const s = (str || '').toString().trim().toLowerCase();
   if (s.startsWith('pre')) return 'preseason';
+  if (s.startsWith('tourn')) return 'tournament';
   if (s.startsWith('play') || s.startsWith('post')) return 'playoffs';
   return 'regular';
 }
