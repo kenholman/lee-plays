@@ -706,6 +706,21 @@
     border-top: 2px solid var(--blue-dim);
     padding-top: 1rem;
   }
+  .event-row td,
+  tbody .event-row td:first-child {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.1rem;
+    font-weight: 400;
+    letter-spacing: 0.12em;
+    color: var(--blue);
+    padding-top: 1.5rem;
+  }
+  .event-row:hover { background: none; }
+  .subtotal-row td {
+    font-weight: 700;
+    color: var(--text-muted);
+    border-top: 1px solid rgba(61,174,224,0.2);
+  }
   .loading-msg {
     font-family: 'Barlow Condensed', sans-serif;
     font-size: 0.85rem;
@@ -1509,6 +1524,7 @@ async function loadStats() {
       const row = ['date','opponent','gf','ga','g','a','+/-','pim','ppg','shg'].map(h => get(r, h));
       row.result = get(r, 'result');
       row.phase = normalizePhase(get(r, 'phase'));
+      row.event = get(r, 'event').trim();
       return row;
     });
     // Schedule shape: Date, Opponent, Location, Result, GF, GA
@@ -1550,26 +1566,15 @@ function renderStats(phase) {
   const data = rowsForPhase(statsData, phase);
 
     // Totals — only count games that have actually been played (score filled in)
-    let gp=0, g=0, a=0, pm=0, pim=0, ppg=0, shg=0;
-    data.forEach(r => {
-      const hasScore = (r[2] || '').toString().trim() !== '' && (r[3] || '').toString().trim() !== '';
-      if (!hasScore) return;
-      gp++;
-      g   += parseInt(r[4])||0;
-      a   += parseInt(r[5])||0;
-      pm  += parseInt(r[6])||0;
-      pim += parseInt(r[7])||0;
-      ppg += parseInt(r[8])||0;
-      shg += parseInt(r[9])||0;
-    });
-    document.getElementById('c-gp').textContent  = gp;
-    document.getElementById('c-g').textContent   = g;
-    document.getElementById('c-a').textContent   = a;
-    document.getElementById('c-pts').textContent = g+a;
-    document.getElementById('c-pm').textContent  = (pm >= 0 ? '+' : '') + pm;
-    document.getElementById('c-pim').textContent = pim;
-    document.getElementById('c-ppg').textContent = ppg;
-    document.getElementById('c-shg').textContent = shg;
+    const t = statTotals(data);
+    document.getElementById('c-gp').textContent  = t.gp;
+    document.getElementById('c-g').textContent   = t.g;
+    document.getElementById('c-a').textContent   = t.a;
+    document.getElementById('c-pts').textContent = t.g+t.a;
+    document.getElementById('c-pm').textContent  = (t.pm >= 0 ? '+' : '') + t.pm;
+    document.getElementById('c-pim').textContent = t.pim;
+    document.getElementById('c-ppg').textContent = t.ppg;
+    document.getElementById('c-shg').textContent = t.shg;
 
     // Table
     let html = `<table>
@@ -1577,39 +1582,79 @@ function renderStats(phase) {
         <th>Date</th><th>Opponent</th><th>Score</th>
         <th>G</th><th>A</th><th>PTS</th><th>+/−</th><th>PIM</th><th>PPG</th><th>SHG</th>
       </tr></thead><tbody>`;
-    data.forEach(r => {
-      const gfRaw = (r[2] || '').toString().trim();
-      const gaRaw = (r[3] || '').toString().trim();
-      let score = '&ndash;';
-      if (gfRaw !== '' && gaRaw !== '') {
-        const gf = parseInt(gfRaw), ga = parseInt(gaRaw);
-        if (isNaN(gf) || isNaN(ga)) {
-          score = `${gfRaw}&ndash;${gaRaw}`;
-        } else {
-          // The Result column decides (so OTW/OTL show); if it is blank,
-          // fall back to comparing the score.
-          const recorded = parseResult(r.result);
-          const base  = recorded ? recorded.base  : (gf > ga ? 'w' : gf < ga ? 'l' : 't');
-          const label = recorded ? recorded.label : base.toUpperCase();
-          score = `<span class="stat-res res-${base}"><span class="stat-res-tag">${label}</span> ${gfRaw}&ndash;${gaRaw}</span>`;
+    // Tournament view: each named event gets a heading row over its games.
+    // With more than one event, each also gets a subtotal row (with just
+    // one, the subtotal would repeat the Tournament Totals row).
+    // Every other view is one flat list.
+    const groups = phase === 'tournament' ? eventGroups(data) : [];
+    if (groups.length > 1 || (groups.length === 1 && groups[0].name)) {
+      groups.forEach(e => {
+        const name = e.name || PHASE_LABELS.tournament;
+        html += `<tr class="event-row"><td colspan="10">${name}</td></tr>`;
+        html += e.rows.map(statGameRow).join('');
+        if (groups.length > 1) {
+          html += statTotalRow(`${name} Totals`, statTotals(e.rows), 'subtotal-row');
         }
-      }
-      const pts   = (parseInt(r[4])||0) + (parseInt(r[5])||0);
-      html += `<tr>
+      });
+    } else {
+      html += data.map(statGameRow).join('');
+    }
+    if (!data.length) {
+      html += `<tr><td colspan="10" style="text-align:center;color:var(--text-muted);">No ${PHASE_LABELS[phase].toLowerCase()} games recorded yet</td></tr>`;
+    }
+    html += statTotalRow(`${PHASE_LABELS[phase]} Totals`, t, 'tfoot-row');
+    html += `</tbody></table>`;
+    document.getElementById('stats-table-container').innerHTML = html;
+}
+
+// Adds up a set of stat rows. Only games with a score filled in count.
+function statTotals(rows) {
+  const t = { gp: 0, g: 0, a: 0, pm: 0, pim: 0, ppg: 0, shg: 0 };
+  rows.forEach(r => {
+    const hasScore = (r[2] || '').toString().trim() !== '' && (r[3] || '').toString().trim() !== '';
+    if (!hasScore) return;
+    t.gp++;
+    t.g   += parseInt(r[4])||0;
+    t.a   += parseInt(r[5])||0;
+    t.pm  += parseInt(r[6])||0;
+    t.pim += parseInt(r[7])||0;
+    t.ppg += parseInt(r[8])||0;
+    t.shg += parseInt(r[9])||0;
+  });
+  return t;
+}
+
+function statTotalRow(label, t, cls) {
+  return `<tr class="${cls}">
+      <td colspan="3">${label}</td>
+      <td>${t.g}</td><td>${t.a}</td><td>${t.g+t.a}</td>
+      <td>${(t.pm >= 0 ? '+' : '') + t.pm}</td><td>${t.pim}</td><td>${t.ppg}</td><td>${t.shg}</td>
+    </tr>`;
+}
+
+function statGameRow(r) {
+  const gfRaw = (r[2] || '').toString().trim();
+  const gaRaw = (r[3] || '').toString().trim();
+  let score = '&ndash;';
+  if (gfRaw !== '' && gaRaw !== '') {
+    const gf = parseInt(gfRaw), ga = parseInt(gaRaw);
+    if (isNaN(gf) || isNaN(ga)) {
+      score = `${gfRaw}&ndash;${gaRaw}`;
+    } else {
+      // The Result column decides (so OTW/OTL show); if it is blank,
+      // fall back to comparing the score.
+      const recorded = parseResult(r.result);
+      const base  = recorded ? recorded.base  : (gf > ga ? 'w' : gf < ga ? 'l' : 't');
+      const label = recorded ? recorded.label : base.toUpperCase();
+      score = `<span class="stat-res res-${base}"><span class="stat-res-tag">${label}</span> ${gfRaw}&ndash;${gaRaw}</span>`;
+    }
+  }
+  const pts = (parseInt(r[4])||0) + (parseInt(r[5])||0);
+  return `<tr>
         <td>${r[0]}</td><td>${r[1]}</td><td>${score}</td>
         <td>${r[4]||0}</td><td>${r[5]||0}</td><td>${pts}</td>
         <td>${r[6]||0}</td><td>${r[7]||0}</td><td>${r[8]||0}</td><td>${r[9]||0}</td>
       </tr>`;
-    });
-    if (!data.length) {
-      html += `<tr><td colspan="10" style="text-align:center;color:var(--text-muted);">No ${PHASE_LABELS[phase].toLowerCase()} games recorded yet</td></tr>`;
-    }
-    html += `<tr class="tfoot-row">
-      <td colspan="3">${PHASE_LABELS[phase]} Totals</td>
-      <td>${g}</td><td>${a}</td><td>${g+a}</td>
-      <td>${(pm >= 0 ? '+' : '') + pm}</td><td>${pim}</td><td>${ppg}</td><td>${shg}</td>
-    </tr></tbody></table>`;
-    document.getElementById('stats-table-container').innerHTML = html;
 }
 
 // ─── SCHEDULE ───
